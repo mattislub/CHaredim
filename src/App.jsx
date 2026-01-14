@@ -1,0 +1,29 @@
+import Communities from "./components/Communities";
+import ExtraContent from "./components/ExtraContent";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import NewsGrid from "./components/NewsGrid";
+import OpinionColumns from "./components/OpinionColumns";
+import PopularList from "./components/PopularList";
+import SponsoredArea from "./components/SponsoredArea";
+import Ticker from "./components/Ticker";
+
+export default function App() {
+  return (
+    <div className="app">
+      <Header />
+      <main>
+        <Hero />
+        <Ticker />
+        <NewsGrid />
+        <Communities />
+        <OpinionColumns />
+        <PopularList />
+        <ExtraContent />
+        <SponsoredArea />
+      </main>
+      <Footer />
+    </div>
+  );
+}
