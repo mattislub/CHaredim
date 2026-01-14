@@ -1,7 +1,7 @@
 export const heroMain = {
   title: "מחאה רחבה נגד חוק הגיוס: קריאה לשמור על עולם התורה",
   summary: "מנהיגי הציבור מזהירים מהפגיעה בערכי התורה ודורשים לעצור כל ניסיון לכפות גיוס על בני ישיבות.",
-  image: "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=900&q=80",
+  image: "https://commons.wikimedia.org/wiki/Special:FilePath/Ultra_Orthodox_Jews_in_Jerusalem.jpg",
   tag: "חם",
 };
 
@@ -31,42 +31,42 @@ export const newsCards = [
   {
     title: "עצרת תלמידי ישיבות: לא לגיוס, כן ללימוד תורה",
     time: "לפני 12 דקות",
-    image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Haredi_Jews_in_Jerusalem.jpg",
   },
   {
     title: "נציגי הקהילות דורשים: הפסקת השיח המפלגתי",
     time: "לפני 35 דקות",
-    image: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Hasidic_Jews_in_Meir_Shearim.jpg",
   },
   {
     title: "עמדת הפלג הירושלמי: עמידה ללא פשרות מול הגיוס",
     time: "לפני שעה",
-    image: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Haredi_boys_in_Jerusalem.jpg",
   },
   {
     title: "העדה החרדית: חיזוק הקהילות והתרחקות ממפלגות",
     time: "לפני שעה",
-    image: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Hasidic_Jews_Praying.jpg",
   },
   {
     title: "חצרות החסידים קוראות להתלכד סביב עקרונות התורה",
     time: "לפני שעתיים",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Haredi_Jewish_men_praying.jpg",
   },
   {
     title: "הכנה להסברה בקהילות: למה מתנגדים לגיוס",
     time: "לפני 3 שעות",
-    image: "https://images.unsplash.com/photo-1496307042754-b4aa456c4a2d?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Hasidic_Jews_in_Bnei_Brak.jpg",
   },
   {
     title: "יוזמה קהילתית לחיזוק לומדי התורה",
     time: "לפני 4 שעות",
-    image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Haredi_Jews_in_Bnei_Brak.jpg",
   },
   {
     title: "קריאה ציבורית: להתרחק ממחלוקות מפלגתיות",
     time: "לפני 5 שעות",
-    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=600&q=80",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Hasidic_Jews_in_Jerusalem.jpg",
   },
 ];
 
@@ -117,18 +117,18 @@ export const opinionColumns = [
   {
     name: "הרב משה לוי",
     title: "ללא פשרות: למה מתנגדים לגיוס בני הישיבות",
-    avatar: "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=200&q=80",
+    avatar: "https://commons.wikimedia.org/wiki/Special:FilePath/Portrait_of_a_Haredi_Jew.jpg",
     highlight: "טור השבוע",
   },
   {
     name: "שרה כהן",
     title: "החזון של העדה החרדית: קהילה ללא מפלגות",
-    avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80",
+    avatar: "https://commons.wikimedia.org/wiki/Special:FilePath/Haredi_man_in_Jerusalem.jpg",
   },
   {
     name: "יוסי פרידמן",
     title: "הפלג הירושלמי והקריאה לעמידה איתנה",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+    avatar: "https://commons.wikimedia.org/wiki/Special:FilePath/Hasidic_man_portrait.jpg",
   },
 ];
 
