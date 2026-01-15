@@ -1,109 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 
-const escapeHtml = (value) =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
-const getYouTubeId = (url) => {
-  try {
-    const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname.replace(/^www\./, "");
-    if (hostname === "youtu.be") {
-      return parsedUrl.pathname.replace("/", "") || null;
-    }
-    if (hostname.endsWith("youtube.com")) {
-      if (parsedUrl.pathname.startsWith("/shorts/")) {
-        return parsedUrl.pathname.split("/")[2] || null;
-      }
-      return parsedUrl.searchParams.get("v");
-    }
-  } catch (error) {
-    return null;
-  }
-  return null;
-};
-
-const applyFormatting = (value) => {
-  const embeds = [];
-  let embedIndex = 0;
-  const textWithTokens = value.replace(
-    /\[youtube\]([\s\S]*?)\[\/youtube\]/gi,
-    (match, url) => {
-      const token = `__YOUTUBE_EMBED_${embedIndex}__`;
-      embeds.push({ token, url: url.trim() });
-      embedIndex += 1;
-      return token;
-    }
-  );
-
-  let escaped = escapeHtml(textWithTokens);
-  escaped = escaped
-    .replace(/\[big\]([\s\S]*?)\[\/big\]/gi, '<span class="post-page__text--big">$1</span>')
-    .replace(/\[small\]([\s\S]*?)\[\/small\]/gi, '<span class="post-page__text--small">$1</span>')
-    .replace(/\[b\]([\s\S]*?)\[\/b\]/gi, "<strong>$1</strong>")
-    .replace(/\[u\]([\s\S]*?)\[\/u\]/gi, '<span class="post-page__text--underline">$1</span>');
-
-  embeds.forEach(({ token, url }) => {
-    const videoId = getYouTubeId(url);
-    const safeUrl = escapeHtml(url);
-    const embedMarkup = videoId
-      ? `<div class="post-page__embed"><iframe src="https://www.youtube.com/embed/${videoId}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-      : `<a class="post-page__link" href="${safeUrl}" target="_blank" rel="noreferrer">${safeUrl}</a>`;
-    escaped = escaped.replace(token, embedMarkup);
-  });
-
-  return escaped;
-};
-
-const buildFormattedContent = (content, fallback) => {
-  const rawContent = typeof content === "string" ? content : "";
-  const fallbackText = Array.isArray(fallback) ? fallback.join("\n\n") : fallback;
-  const source = rawContent || fallbackText || "";
-  const blocks = source
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean);
-
-  if (!blocks.length) {
-    return "";
-  }
-
-  return blocks
-    .map((block) => {
-      const formatted = applyFormatting(block).replace(/\n/g, "<br />");
-      if (formatted.includes("post-page__embed")) {
-        return `<div class="post-page__embed-block">${formatted}</div>`;
-      }
-      return `<p>${formatted}</p>`;
-    })
-    .join("");
-};
-
 const buildParagraphs = (content, fallback) => {
   if (typeof content === "string") {
     const lines = content
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean);
-    if (lines.length) {
-      return lines;
-    }
+    if (lines.length) return lines;
   }
-  return fallback;
+  return Array.isArray(fallback) ? fallback : [];
 };
 
 const formatPostTime = (value) => {
-  if (!value) {
-    return "ללא תאריך";
-  }
+  if (!value) return "ללא תאריך";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "ללא תאריך";
-  }
+  if (Number.isNaN(date.getTime())) return "ללא תאריך";
   return date.toLocaleDateString("he-IL", {
     day: "numeric",
     month: "short",
@@ -111,27 +22,27 @@ const formatPostTime = (value) => {
   });
 };
 
+const fixWpHtml = (html) => {
+  if (!html) return "";
+
+  return (
+    html
+      // lazyload iframes/images
+      .replace(/data-src=/g, "src=")
+      .replace(/data-srcset=/g, "srcset=")
+      .replace(/data-sizes=/g, "sizes=")
+      // add loading=lazy to images if missing
+      .replace(/<img(?![^>]*\sloading=)/g, '<img loading="lazy"')
+  );
+};
+
 export default function PostPage({ post, fallback, slug }) {
   const [fetchedPost, setFetchedPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const postId = useMemo(() => {
-    if (post?.id) {
-      return post.id;
-    }
-    if (fallback?.id) {
-      return fallback.id;
-    }
-    if (slug && /^\d+$/.test(slug)) {
-      return Number(slug);
-    }
-    return null;
-  }, [post, fallback, slug]);
 
   useEffect(() => {
-    if (!postId) {
-      return undefined;
-    }
+    if (!slug) return undefined;
 
     const controller = new AbortController();
 
@@ -139,22 +50,21 @@ export default function PostPage({ post, fallback, slug }) {
       try {
         setIsLoading(true);
         setError("");
-        const response = await fetch(`/api/posts/${postId}`, {
+
+        const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`, {
           signal: controller.signal,
         });
-        if (response.status === 404) {
-          setError("not-found");
-          setFetchedPost(null);
-          return;
-        }
+
         if (!response.ok) {
-          throw new Error("Failed to fetch post");
+          if (response.status === 404) throw new Error("not_found");
+          throw new Error("fetch_failed");
         }
+
         const data = await response.json();
         setFetchedPost(data);
       } catch (fetchError) {
         if (fetchError?.name !== "AbortError") {
-          setError("failed");
+          setError(fetchError?.message === "not_found" ? "not_found" : "failed");
         }
       } finally {
         setIsLoading(false);
@@ -162,61 +72,73 @@ export default function PostPage({ post, fallback, slug }) {
     };
 
     loadPost();
-
     return () => controller.abort();
-  }, [postId]);
+  }, [slug]);
 
-  const resolvedPost = fetchedPost || post || fallback;
-  const title = resolvedPost.title || fallback.title;
-  const image = resolvedPost.featured_image_url || fallback.featured_image_url;
-  const paragraphs = buildParagraphs(resolvedPost.content, fallback.body);
-  const summary = resolvedPost.excerpt || fallback.summary;
-  const htmlContent = resolvedPost.html;
-  const fixedHtml = useMemo(
-    () => (htmlContent ? htmlContent.replace(/data-src=/g, "src=") : ""),
-    [htmlContent]
-  );
-  const formattedContent = useMemo(
-    () => buildFormattedContent(resolvedPost.content, fallback.body),
-    [resolvedPost.content, fallback.body]
-  );
+  const resolvedPost = fetchedPost || post || fallback || {};
+  const title = resolvedPost.title || fallback?.title || "";
+  const image = resolvedPost.featured_image_url || fallback?.featured_image_url || "";
+  const publishedAt = resolvedPost.published_at || fallback?.published_at;
+
+  const excerptHtml = resolvedPost.excerpt || fallback?.summary || "";
+  const htmlContent = resolvedPost.html || "";
+  const fixedHtml = useMemo(() => fixWpHtml(htmlContent), [htmlContent]);
+  const paragraphs = buildParagraphs(resolvedPost.content, fallback?.body);
 
   return (
-    <section className="post-page">
+    <section className="post-page" dir="rtl">
       <div className="post-page__layout">
         <a className="post-page__back" href="#/">
           חזרה לעמוד הראשי
         </a>
+
         <div className="post-page__hero">
           <div className="post-page__meta">
             <span className="post-page__tag">כתבה</span>
-            <span>{formatPostTime(resolvedPost.published_at)}</span>
+            <span>{formatPostTime(publishedAt)}</span>
           </div>
+
           <h1>{title}</h1>
-          <p className="post-page__summary">{summary}</p>
+
+          {excerptHtml ? (
+            <div
+              className="post-page__summary"
+              dangerouslySetInnerHTML={{ __html: fixWpHtml(excerptHtml) }}
+            />
+          ) : null}
         </div>
-        <img
-          className="post-page__image"
-          src={image}
-          alt={title}
-        />
+
+        {image ? (
+          <img
+            className="post-page__image"
+            src={image}
+            alt={title}
+            loading="lazy"
+          />
+        ) : null}
+
         <article className="post-page__content">
-          {fixedHtml ? (
-            <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
-          ) : formattedContent ? (
-            <div dangerouslySetInnerHTML={{ __html: formattedContent }} />
-          ) : (
-            paragraphs.map((paragraph, index) => (
-              <p key={`${title}-${index}`}>{paragraph}</p>
-            ))
-          )}
           {isLoading ? <p>טוען את הכתבה...</p> : null}
+
           {error ? (
-            <p role="alert">לא הצלחנו לטעון את הכתבה.</p>
+            <p role="alert">
+              {error === "not_found" ? "הכתבה לא נמצאה." : "לא הצלחנו לטעון את הכתבה."}
+            </p>
+          ) : null}
+
+          {!isLoading && !error ? (
+            fixedHtml ? (
+              <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
+            ) : (
+              paragraphs.map((paragraph, index) => (
+                <p key={`${title}-${index}`}>{paragraph}</p>
+              ))
+            )
           ) : null}
         </article>
+
         <div className="post-page__footer">
-          <span>עוד כתבות לקהל הקהילתי מחכות בעמוד הראשי.</span>
+          <span>עוד כתבות מחכות בעמוד הראשי.</span>
           <a href="#/" className="post-page__cta">
             חזרה לחדשות
           </a>
