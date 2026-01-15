@@ -4,9 +4,13 @@ export default function Ticker({ items }) {
       <div className="ticker__label">מבזקים</div>
       <div className="ticker__track">
         {items.map((item) => (
-          <span key={item} className="ticker__item">
-            {item}
-          </span>
+          <a
+            key={item.slug ?? item.label}
+            className="ticker__item"
+            href={`#/post/${item.slug}`}
+          >
+            {item.label}
+          </a>
         ))}
       </div>
     </section>

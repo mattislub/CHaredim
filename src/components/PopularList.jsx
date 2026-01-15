@@ -7,7 +7,9 @@ export default function PopularList({ items }) {
       </div>
       <ol className="popular-list">
         {items.map((item) => (
-          <li key={item}>{item}</li>
+          <li key={item.slug ?? item.title}>
+            <a href={`#/post/${item.slug}`}>{item.title}</a>
+          </li>
         ))}
       </ol>
     </section>

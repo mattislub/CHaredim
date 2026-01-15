@@ -9,7 +9,9 @@ export default function Hero({ mainPost, sidePosts }) {
         />
         <div className="hero__content">
           <span className="tag">{mainPost.tag}</span>
-          <h1>{mainPost.title}</h1>
+          <h1>
+            <a href={`#/post/${mainPost.slug}`}>{mainPost.title}</a>
+          </h1>
           <p>{mainPost.summary}</p>
         </div>
       </article>
@@ -17,7 +19,9 @@ export default function Hero({ mainPost, sidePosts }) {
         {sidePosts.map((item) => (
           <div key={item.title} className="hero__side-item">
             <span className="tag tag--subtle">{item.tag}</span>
-            <h3>{item.title}</h3>
+            <h3>
+              <a href={`#/post/${item.slug}`}>{item.title}</a>
+            </h3>
           </div>
         ))}
       </div>
