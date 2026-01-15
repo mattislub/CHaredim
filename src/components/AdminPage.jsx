@@ -1,11 +1,11 @@
 
 const adminActions = [
-  { label: "סטטוס ביקורים", icon: "📊" },
-  { label: "הוסף פוסט חדש", icon: "📝" },
-  { label: "הוסף תמונות לגלריה", icon: "🖼️" },
-  { label: "הוסף קטגוריה חדשה", icon: "➕" },
-  { label: "הגדרות כלליות", icon: "⚙️" },
-  { label: "ניהול משתמשים", icon: "👥" },
+  "סטטוס ביקורים",
+  "הוסף פוסט חדש",
+  "הוסף תמונות לגלריה",
+  "הוסף קטגוריה חדשה",
+  "הגדרות כלליות",
+  "ניהול משתמשים",
 ];
 
 export default function AdminPage() {
@@ -24,15 +24,8 @@ export default function AdminPage() {
           </div>
           <div className="admin-page__buttons">
             {adminActions.map((action) => (
-              <button
-                className="admin-page__button"
-                key={action.label}
-                type="button"
-              >
-                <span className="button-icon" aria-hidden="true">
-                  {action.icon}
-                </span>
-                {action.label}
+              <button className="admin-page__button" key={action} type="button">
+                {action}
               </button>
             ))}
           </div>

@@ -51,17 +51,10 @@ footer {
 
 .header__nav-item {
   border: none;
-  background: #ffffff;
-  font-size: 1.05rem;
+  background: none;
+  font-size: 1rem;
   cursor: pointer;
   color: inherit;
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .header__actions {
@@ -244,18 +237,11 @@ main {
 
 .community-link {
   border: none;
-  background: #eef2ff;
+  background: none;
   color: #2563eb;
   cursor: pointer;
   text-align: start;
   font-weight: 600;
-  font-size: 1.05rem;
-  padding: 0.5rem 0.8rem;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: fit-content;
 }
 
 .opinions {
@@ -338,16 +324,9 @@ main {
 
 .footer__link {
   border: none;
-  background: #f8fafc;
+  background: none;
   color: #475569;
   cursor: pointer;
-  font-size: 1.05rem;
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
 }
 
 @media (max-width: 900px) {
@@ -437,21 +416,17 @@ main {
 }
 
 .admin-page__button {
-  border: 1px solid #fdba74;
-  background: #fff7ed;
-  color: #c2410c;
+  border: none;
+  background: #f97316;
+  color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 16px;
   font-weight: 700;
-  font-size: 1.12rem;
+  font-size: 1.05rem;
   cursor: pointer;
   width: 100%;
   text-align: center;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
 }
 
 @media (max-width: 720px) {
@@ -527,23 +502,12 @@ main {
 }
 
 .admin-login__button {
-  border: 1px solid #1f2937;
-  background: #1f2937;
-  color: #f8fafc;
+  border: none;
+  background: #0f172a;
+  color: #fff;
   padding: 0.75rem 1.4rem;
   border-radius: 999px;
   font-weight: 600;
-  font-size: 1.05rem;
   cursor: pointer;
   width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.button-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05em;
 }
