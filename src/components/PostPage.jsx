@@ -59,7 +59,17 @@ export default function PostPage({ post, fallback, slug }) {
         );
 
         if (!response.ok) {
-          if (response.status === 404) throw new Error("not_found");
+          if (response.status === 404) {
+            console.warn("Post not found for slug.", {
+              slug,
+              status: response.status,
+            });
+            throw new Error("not_found");
+          }
+          console.warn("Post fetch failed.", {
+            slug,
+            status: response.status,
+          });
           throw new Error("fetch_failed");
         }
 
