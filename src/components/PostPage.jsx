@@ -51,9 +51,12 @@ export default function PostPage({ post, fallback, slug }) {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(`/api/posts/${encodeURIComponent(slug)}`, {
-          signal: controller.signal,
-        });
+        const response = await fetch(
+          `/api/posts/by-id/${encodeURIComponent(slug)}`,
+          {
+            signal: controller.signal,
+          }
+        );
 
         if (!response.ok) {
           if (response.status === 404) throw new Error("not_found");
