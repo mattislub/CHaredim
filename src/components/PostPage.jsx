@@ -32,9 +32,21 @@ export default function PostPage({ post, fallback, slug }) {
   const [fetchedPost, setFetchedPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const postId = useMemo(() => {
+    if (post?.id) {
+      return post.id;
+    }
+    if (fallback?.id) {
+      return fallback.id;
+    }
+    if (slug && /^\d+$/.test(slug)) {
+      return Number(slug);
+    }
+    return null;
+  }, [post, fallback, slug]);
 
   useEffect(() => {
-    if (!slug) {
+    if (!postId) {
       return undefined;
     }
 
@@ -44,12 +56,9 @@ export default function PostPage({ post, fallback, slug }) {
       try {
         setIsLoading(true);
         setError("");
-        const response = await fetch(
-          `/api/posts/${encodeURIComponent(slug)}`,
-          {
-            signal: controller.signal,
-          }
-        );
+        const response = await fetch(`/api/posts/${postId}`, {
+          signal: controller.signal,
+        });
         if (response.status === 404) {
           setError("not-found");
           setFetchedPost(null);
@@ -72,7 +81,7 @@ export default function PostPage({ post, fallback, slug }) {
     loadPost();
 
     return () => controller.abort();
-  }, [slug]);
+  }, [postId]);
 
   const isNotFound = error === "not-found";
   const hasError = Boolean(error && error !== "not-found");
