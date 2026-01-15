@@ -10,6 +10,14 @@ import OpinionColumns from "./components/OpinionColumns";
 import PopularList from "./components/PopularList";
 import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
+import { fetchPosts } from "./api/posts";
+import {
+  heroMain as fallbackHeroMain,
+  heroSide as fallbackHeroSide,
+  newsCards as fallbackNewsCards,
+  popularPosts as fallbackPopularPosts,
+  tickerItems as fallbackTickerItems,
+} from "./data/mockData";
 
 const ADMIN_USERNAME = "מתתיהו";
 const ADMIN_PASSWORD = "613613";
@@ -22,6 +30,9 @@ export default function App() {
     () => sessionStorage.getItem("admin-authenticated") === "true"
   );
   const [authError, setAuthError] = useState("");
+  const [posts, setPosts] = useState([]);
+  const [isPostsLoading, setIsPostsLoading] = useState(true);
+  const [postsError, setPostsError] = useState("");
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -30,6 +41,29 @@ export default function App() {
 
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadPosts = async () => {
+      try {
+        setIsPostsLoading(true);
+        setPostsError("");
+        const data = await fetchPosts({ limit: 12, signal: controller.signal });
+        setPosts(Array.isArray(data.items) ? data.items : []);
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          setPostsError("failed");
+        }
+      } finally {
+        setIsPostsLoading(false);
+      }
+    };
+
+    loadPosts();
+
+    return () => controller.abort();
   }, []);
 
   const handleAdminLogin = (event) => {
@@ -50,6 +84,56 @@ export default function App() {
     sessionStorage.removeItem("admin-authenticated");
     setAuthError("שם המשתמש או הסיסמה שגויים. נסו שוב.");
   };
+
+  const fallbackImage = fallbackHeroMain.image;
+
+  const formatPostTime = (value) => {
+    if (!value) {
+      return "ללא תאריך";
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return "ללא תאריך";
+    }
+    return date.toLocaleDateString("he-IL", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const resolvedHeroMain = posts.length
+    ? {
+        title: posts[0].title,
+        summary: posts[0].excerpt || "אין תקציר זמין לפוסט זה.",
+        image: posts[0].featured_image_url || fallbackImage,
+        tag: "חדש",
+      }
+    : fallbackHeroMain;
+
+  const resolvedHeroSide = posts.length
+    ? posts.slice(1, 4).map((post) => ({
+        title: post.title,
+        tag: "עדכון",
+      }))
+    : fallbackHeroSide;
+
+  const resolvedTickerItems = posts.length
+    ? posts.slice(0, 6).map((post) => `⚡ ${post.title}`)
+    : fallbackTickerItems;
+
+  const resolvedNewsCards = posts.length
+    ? posts.map((post) => ({
+        id: post.id,
+        title: post.title,
+        time: formatPostTime(post.published_at),
+        image: post.featured_image_url || fallbackImage,
+      }))
+    : fallbackNewsCards;
+
+  const resolvedPopularPosts = posts.length
+    ? posts.slice(0, 5).map((post) => post.title)
+    : fallbackPopularPosts;
 
   return (
     <div className="app">
@@ -99,12 +183,16 @@ export default function App() {
           )
         ) : (
           <>
-            <Hero />
-            <Ticker />
-            <NewsGrid />
+            <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />
+            <Ticker items={resolvedTickerItems} />
+            <NewsGrid
+              items={resolvedNewsCards}
+              isLoading={isPostsLoading}
+              error={postsError}
+            />
             <Communities />
             <OpinionColumns />
-            <PopularList />
+            <PopularList items={resolvedPopularPosts} />
             <ExtraContent />
             <SponsoredArea />
           </>

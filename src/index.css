@@ -182,6 +182,15 @@ main {
   font-size: 0.9rem;
 }
 
+.section__status {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.section__status--error {
+  color: #b91c1c;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

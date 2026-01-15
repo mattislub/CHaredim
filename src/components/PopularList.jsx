@@ -1,6 +1,4 @@
-import { popularPosts } from "../data/mockData";
-
-export default function PopularList() {
+export default function PopularList({ items }) {
   return (
     <section className="section">
       <div className="section__header">
@@ -8,7 +6,7 @@ export default function PopularList() {
         <span className="section__hint">מעודכן לפי צפיות ותגובות</span>
       </div>
       <ol className="popular-list">
-        {popularPosts.map((item) => (
+        {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ol>
