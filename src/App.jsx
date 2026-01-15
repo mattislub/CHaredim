@@ -111,30 +111,46 @@ export default function App() {
     });
   };
 
+  const getPostSlug = (post) => String(post.id ?? slugify(post.title));
+
   const resolvedHeroMain = posts.length
     ? {
         title: posts[0].title,
         summary: posts[0].excerpt || "אין תקציר זמין לפוסט זה.",
         image: posts[0].featured_image_url || fallbackImage,
         tag: "חדש",
+        slug: getPostSlug(posts[0]),
       }
-    : fallbackHeroMain;
+    : {
+        ...fallbackHeroMain,
+        slug: slugify(fallbackHeroMain.title),
+      };
 
   const resolvedHeroSide = posts.length
     ? posts.slice(1, 4).map((post) => ({
         title: post.title,
         tag: "עדכון",
+        slug: getPostSlug(post),
       }))
-    : fallbackHeroSide;
+    : fallbackHeroSide.map((item) => ({
+        ...item,
+        slug: slugify(item.title),
+      }));
 
   const resolvedTickerItems = posts.length
-    ? posts.slice(0, 6).map((post) => `⚡ ${post.title}`)
-    : fallbackTickerItems;
+    ? posts.slice(0, 6).map((post) => ({
+        label: `⚡ ${post.title}`,
+        slug: getPostSlug(post),
+      }))
+    : fallbackTickerItems.map((item) => ({
+        label: item,
+        slug: slugify(item),
+      }));
 
   const resolvedNewsCards = posts.length
     ? posts.map((post) => ({
         id: post.id,
-        slug: String(post.id ?? slugify(post.title)),
+        slug: getPostSlug(post),
         title: post.title,
         time: formatPostTime(post.published_at),
         image: post.featured_image_url || fallbackImage,
@@ -145,8 +161,14 @@ export default function App() {
       }));
 
   const resolvedPopularPosts = posts.length
-    ? posts.slice(0, 5).map((post) => post.title)
-    : fallbackPopularPosts;
+    ? posts.slice(0, 5).map((post) => ({
+        title: post.title,
+        slug: getPostSlug(post),
+      }))
+    : fallbackPopularPosts.map((title) => ({
+        title,
+        slug: slugify(title),
+      }));
 
   const postHashMatch = useMemo(
     () => currentHash.match(/^#\/post\/?(.*)$/),
@@ -157,7 +179,7 @@ export default function App() {
     : "";
   const postLookupKey = postSlug || resolvedNewsCards[0]?.slug;
   const resolvedPost = posts.find((post) => {
-    const slug = String(post.id ?? slugify(post.title));
+    const slug = getPostSlug(post);
     return slug === postLookupKey;
   });
 
