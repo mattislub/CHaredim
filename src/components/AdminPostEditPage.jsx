@@ -40,12 +40,15 @@ export default function AdminPostEditPage({
     resolvedPost?.imageUrl ?? ""
   );
   const [imageFileName, setImageFileName] = useState("");
+  const [content, setContent] = useState(resolvedPost?.content ?? "");
+  const contentRef = useRef(null);
   const objectUrlRef = useRef(null);
 
   useEffect(() => {
     setImageUrl(resolvedPost?.imageUrl ?? "");
     setImagePreview(resolvedPost?.imageUrl ?? "");
     setImageFileName("");
+    setContent(resolvedPost?.content ?? "");
     if (objectUrlRef.current) {
       URL.revokeObjectURL(objectUrlRef.current);
       objectUrlRef.current = null;
@@ -105,6 +108,52 @@ export default function AdminPostEditPage({
   const previewDescription = imagePreview
     ? "תצוגה מקדימה של התמונה שהוזנה."
     : "טרם הועלתה תמונה לפוסט.";
+  const placeholderSelection = "טקסט";
+
+  const updateContentWithSelection = (prefix, suffix = "") => {
+    const textarea = contentRef.current;
+    if (!textarea) {
+      return;
+    }
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const selectedText = content.slice(start, end) || placeholderSelection;
+    const nextValue = `${content.slice(0, start)}${prefix}${selectedText}${suffix}${content.slice(end)}`;
+    setContent(nextValue);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const selectionStart = start + prefix.length;
+      const selectionEnd = selectionStart + selectedText.length;
+      textarea.setSelectionRange(selectionStart, selectionEnd);
+    });
+  };
+
+  const handleInsertYoutube = () => {
+    const url = window.prompt("הדביקו קישור ליוטיוב");
+    if (!url) {
+      return;
+    }
+    const cleanedUrl = url.trim();
+    if (!cleanedUrl) {
+      return;
+    }
+    const textarea = contentRef.current;
+    if (!textarea) {
+      return;
+    }
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const insertion = `[youtube]${cleanedUrl}[/youtube]`;
+    const nextValue = `${content.slice(0, start)}${insertion}${content.slice(end)}`;
+    setContent(nextValue);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const cursor = start + insertion.length;
+      textarea.setSelectionRange(cursor, cursor);
+    });
+  };
 
   return (
     <section className="admin-post-edit">
@@ -243,12 +292,55 @@ export default function AdminPostEditPage({
           <div className="admin-post-edit__panel admin-post-edit__panel--wide">
             <label className="admin-post-edit__field">
               <span>תוכן מלא</span>
+              <div className="admin-post-edit__toolbar" role="toolbar" aria-label="כלי עיצוב תוכן">
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={() => updateContentWithSelection("[big]", "[/big]")}
+                >
+                  A+
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={() => updateContentWithSelection("[small]", "[/small]")}
+                >
+                  A-
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={() => updateContentWithSelection("[b]", "[/b]")}
+                >
+                  דגש
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={() => updateContentWithSelection("[u]", "[/u]")}
+                >
+                  קו תחתון
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={handleInsertYoutube}
+                >
+                  יוטיוב
+                </button>
+              </div>
               <textarea
                 name="content"
                 rows={10}
                 placeholder="הקלידו כאן את תוכן הפוסט המלא"
-                defaultValue={resolvedPost.content}
+                ref={contentRef}
+                value={content}
+                onChange={(event) => setContent(event.target.value)}
               />
+              <span className="admin-post-edit__hint">
+                ניתן להוסיף עיצוב באמצעות הסרגל: הגדלה, הקטנה, דגש, קו תחתון או
+                שילוב וידאו מיוטיוב.
+              </span>
             </label>
           </div>
 

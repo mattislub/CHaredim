@@ -385,6 +385,50 @@ main {
   font-size: 1.05rem;
 }
 
+.post-page__content p {
+  margin: 0;
+}
+
+.post-page__text--big {
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.post-page__text--small {
+  font-size: 0.85em;
+}
+
+.post-page__text--underline {
+  text-decoration: underline;
+}
+
+.post-page__embed-block {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.post-page__embed {
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0f172a;
+  position: relative;
+  padding-top: 56.25%;
+}
+
+.post-page__embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.post-page__link {
+  color: #0f766e;
+  font-weight: 600;
+}
+
 .post-page__footer {
   border-top: 1px solid #e2e8f0;
   padding-top: 1.5rem;
@@ -881,6 +925,30 @@ main {
   padding: 0.7rem 0.9rem;
   font-size: 0.95rem;
   font-family: inherit;
+}
+
+.admin-post-edit__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-post-edit__tool {
+  border: 1px solid #cbd5f5;
+  background: #fff;
+  color: #1e293b;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-post-edit__tool:hover {
+  border-color: #94a3b8;
 }
 
 .admin-post-edit__field textarea {
