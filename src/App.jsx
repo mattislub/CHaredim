@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminPage from "./components/AdminPage";
+import AdminPostEditPage from "./components/AdminPostEditPage";
 import AdminPostsPage from "./components/AdminPostsPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
@@ -201,6 +202,18 @@ export default function App() {
   const isAdminRoute = currentHash.startsWith("#/admin");
   const isAdminView = currentHash === "#/admin";
   const isAdminPostsView = currentHash === "#/admin/posts";
+  const adminEditMatch = useMemo(
+    () => currentHash.match(/^#\/admin\/posts\/edit\/?(.*)$/),
+    [currentHash]
+  );
+  const adminEditSlug = adminEditMatch?.[1]
+    ? decodeURIComponent(adminEditMatch[1])
+    : "";
+  const isAdminPostEditView = Boolean(adminEditMatch);
+  const adminEditPost =
+    adminEditSlug && adminEditSlug !== "new"
+      ? posts.find((post) => getPostSlug(post) === adminEditSlug)
+      : null;
   const isPostView = Boolean(postHashMatch);
 
   return (
@@ -251,6 +264,24 @@ export default function App() {
               posts={posts}
               isLoading={isPostsLoading}
               error={postsError}
+              onEdit={(post) => {
+                const slug = getPostSlug(post);
+                window.location.hash = `#/admin/posts/edit/${encodeURIComponent(
+                  slug
+                )}`;
+              }}
+              onCreate={() => {
+                window.location.hash = "#/admin/posts/edit/new";
+              }}
+            />
+          ) : isAdminPostEditView ? (
+            <AdminPostEditPage
+              post={adminEditPost}
+              isLoading={isPostsLoading}
+              mode={adminEditSlug === "new" ? "create" : "edit"}
+              onBack={() => {
+                window.location.hash = "#/admin/posts";
+              }}
             />
           ) : (
             <AdminPage />
