@@ -50,6 +50,11 @@ export default function PostPage({ post, fallback, slug }) {
             signal: controller.signal,
           }
         );
+        if (response.status === 404) {
+          setError("not-found");
+          setFetchedPost(null);
+          return;
+        }
         if (!response.ok) {
           throw new Error("Failed to fetch post");
         }
@@ -69,7 +74,9 @@ export default function PostPage({ post, fallback, slug }) {
     return () => controller.abort();
   }, [slug]);
 
-  const resolvedPost = fetchedPost || post || fallback;
+  const isNotFound = error === "not-found";
+  const hasError = Boolean(error && error !== "not-found");
+  const resolvedPost = !isNotFound ? fetchedPost || post || fallback : fallback;
   const title = resolvedPost.title || fallback.title;
   const image = resolvedPost.featured_image_url || fallback.featured_image_url;
   const paragraphs = buildParagraphs(resolvedPost.content, fallback.body);
@@ -79,9 +86,38 @@ export default function PostPage({ post, fallback, slug }) {
     () => (htmlContent ? htmlContent.replace(/data-src=/g, "src=") : ""),
     [htmlContent]
   );
+  const canRenderContent = !isLoading && (resolvedPost || !hasError);
+
+  if (isNotFound) {
+    return (
+      <section className="post-page" dir="rtl">
+        <div className="post-page__layout">
+          <a className="post-page__back" href="#/">
+            חזרה לעמוד הראשי
+          </a>
+          <div className="post-page__hero">
+            <div className="post-page__meta">
+              <span className="post-page__tag">כתבה</span>
+            </div>
+            <h1>הכתבה לא נמצאה</h1>
+            <p className="post-page__summary">
+              לא הצלחנו למצוא את הכתבה שביקשתם. אפשר לחזור לדף הבית ולהמשיך
+              לקרוא את שאר העדכונים.
+            </p>
+          </div>
+          <div className="post-page__footer">
+            <span>עוד כתבות לקהל הקהילתי מחכות בעמוד הראשי.</span>
+            <a href="#/" className="post-page__cta">
+              חזרה לחדשות
+            </a>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="post-page">
+    <section className="post-page" dir="rtl">
       <div className="post-page__layout">
         <a className="post-page__back" href="#/">
           חזרה לעמוד הראשי
@@ -100,16 +136,20 @@ export default function PostPage({ post, fallback, slug }) {
           alt={title}
         />
         <article className="post-page__content">
-          {fixedHtml ? (
+          {isLoading && !fetchedPost ? (
+            <p className="post-page__status">טוען את הכתבה...</p>
+          ) : null}
+          {hasError ? (
+            <p className="post-page__status" role="alert">
+              לא הצלחנו לטעון את הכתבה.
+            </p>
+          ) : null}
+          {canRenderContent && fixedHtml ? (
             <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
-          ) : (
+          ) : canRenderContent ? (
             paragraphs.map((paragraph, index) => (
               <p key={`${title}-${index}`}>{paragraph}</p>
             ))
-          )}
-          {isLoading ? <p>טוען את הכתבה...</p> : null}
-          {error ? (
-            <p role="alert">לא הצלחנו לטעון את הכתבה.</p>
           ) : null}
         </article>
         <div className="post-page__footer">
