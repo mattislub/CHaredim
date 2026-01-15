@@ -287,7 +287,11 @@ export default function App() {
             <AdminPage />
           )
         ) : isPostView ? (
-          <PostPage post={resolvedPost} fallback={fallbackPost} />
+          <PostPage
+            post={resolvedPost}
+            fallback={fallbackPost}
+            slug={postSlug}
+          />
         ) : (
           <>
             <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />

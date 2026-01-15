@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from "react";
+
 const buildParagraphs = (content, fallback) => {
   if (typeof content === "string") {
     const lines = content
@@ -26,12 +28,57 @@ const formatPostTime = (value) => {
   });
 };
 
-export default function PostPage({ post, fallback }) {
-  const resolvedPost = post || fallback;
+export default function PostPage({ post, fallback, slug }) {
+  const [fetchedPost, setFetchedPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!slug) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    const loadPost = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const response = await fetch(
+          `/api/posts/${encodeURIComponent(slug)}`,
+          {
+            signal: controller.signal,
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch post");
+        }
+        const data = await response.json();
+        setFetchedPost(data);
+      } catch (fetchError) {
+        if (fetchError?.name !== "AbortError") {
+          setError("failed");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPost();
+
+    return () => controller.abort();
+  }, [slug]);
+
+  const resolvedPost = fetchedPost || post || fallback;
   const title = resolvedPost.title || fallback.title;
   const image = resolvedPost.featured_image_url || fallback.featured_image_url;
   const paragraphs = buildParagraphs(resolvedPost.content, fallback.body);
   const summary = resolvedPost.excerpt || fallback.summary;
+  const htmlContent = resolvedPost.html;
+  const fixedHtml = useMemo(
+    () => (htmlContent ? htmlContent.replace(/data-src=/g, "src=") : ""),
+    [htmlContent]
+  );
 
   return (
     <section className="post-page">
@@ -53,9 +100,17 @@ export default function PostPage({ post, fallback }) {
           alt={title}
         />
         <article className="post-page__content">
-          {paragraphs.map((paragraph, index) => (
-            <p key={`${title}-${index}`}>{paragraph}</p>
-          ))}
+          {fixedHtml ? (
+            <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
+          ) : (
+            paragraphs.map((paragraph, index) => (
+              <p key={`${title}-${index}`}>{paragraph}</p>
+            ))
+          )}
+          {isLoading ? <p>טוען את הכתבה...</p> : null}
+          {error ? (
+            <p role="alert">לא הצלחנו לטעון את הכתבה.</p>
+          ) : null}
         </article>
         <div className="post-page__footer">
           <span>עוד כתבות לקהל הקהילתי מחכות בעמוד הראשי.</span>
