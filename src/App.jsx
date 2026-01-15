@@ -89,6 +89,9 @@ export default function App() {
                     </p>
                   ) : null}
                   <button className="admin-login__button" type="submit">
+                    <span className="button-icon" aria-hidden="true">
+                      🔐
+                    </span>
                     כניסה ללוח הניהול
                   </button>
                 </form>

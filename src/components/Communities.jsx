@@ -17,6 +17,9 @@ export default function Communities() {
               ))}
             </ul>
             <button type="button" className="community-link">
+              <span className="button-icon" aria-hidden="true">
+                📍
+              </span>
               לכל הכתבות מהקהילה
             </button>
           </div>
