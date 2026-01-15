@@ -323,8 +323,6 @@ main {
 
 .post-page {
   padding: 2rem 0 3rem;
-  direction: rtl;
-  text-align: right;
 }
 
 .post-page__layout {
@@ -385,20 +383,6 @@ main {
   color: #1e293b;
   line-height: 1.8;
   font-size: 1.05rem;
-}
-
-.post-page__content img,
-.post-page__content iframe,
-.post-page__content video {
-  max-width: 100%;
-}
-
-.post-page__status {
-  background: rgba(15, 23, 42, 0.04);
-  border-radius: 12px;
-  padding: 0.8rem 1rem;
-  color: #475569;
-  font-weight: 500;
 }
 
 .post-page__footer {
