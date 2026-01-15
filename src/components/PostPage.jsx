@@ -81,7 +81,7 @@ export default function PostPage({ post, fallback, slug }) {
   const publishedAt = resolvedPost.published_at || fallback?.published_at;
 
   const excerptHtml = resolvedPost.excerpt || fallback?.summary || "";
-  const htmlContent = resolvedPost.html || "";
+  const htmlContent = resolvedPost.html || resolvedPost.HTML || "";
   const fixedHtml = useMemo(() => fixWpHtml(htmlContent), [htmlContent]);
   const paragraphs = buildParagraphs(resolvedPost.content, fallback?.body);
 
