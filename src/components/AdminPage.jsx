@@ -1,11 +1,12 @@
 const adminActions = [
-  "סטטוס ביקורים",
-  "הוסף פוסט חדש",
-  "הוסף תמונות לגלריה",
-  "הוסף קטגוריה חדשה",
-  "הגדרות כלליות",
-  "ניהול משתמשים",
-  "הודעות אורחים",
+  { label: "רשימת פוסטים", href: "#/admin/posts" },
+  { label: "סטטוס ביקורים" },
+  { label: "הוסף פוסט חדש" },
+  { label: "הוסף תמונות לגלריה" },
+  { label: "הוסף קטגוריה חדשה" },
+  { label: "הגדרות כלליות" },
+  { label: "ניהול משתמשים" },
+  { label: "הודעות אורחים" },
 ];
 
 const guestMessages = [
@@ -56,11 +57,25 @@ export default function AdminPage() {
             </p>
           </div>
           <div className="admin-page__buttons">
-            {adminActions.map((action) => (
-              <button className="admin-page__button" key={action} type="button">
-                {action}
-              </button>
-            ))}
+            {adminActions.map((action) =>
+              action.href ? (
+                <a
+                  className="admin-page__button admin-page__button--link"
+                  href={action.href}
+                  key={action.label}
+                >
+                  {action.label}
+                </a>
+              ) : (
+                <button
+                  className="admin-page__button"
+                  key={action.label}
+                  type="button"
+                >
+                  {action.label}
+                </button>
+              )
+            )}
           </div>
           {notice ? (
             <p className="admin-page__notice" role="status">

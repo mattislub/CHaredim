@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AdminPage from "./components/AdminPage";
+import AdminPostsPage from "./components/AdminPostsPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
@@ -23,9 +24,7 @@ const ADMIN_USERNAME = "מתתיהו";
 const ADMIN_PASSWORD = "613613";
 
 export default function App() {
-  const [isAdminView, setIsAdminView] = useState(
-    window.location.hash === "#/admin"
-  );
+  const [adminRoute, setAdminRoute] = useState(window.location.hash);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
     () => sessionStorage.getItem("admin-authenticated") === "true"
   );
@@ -36,7 +35,7 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      setIsAdminView(window.location.hash === "#/admin");
+      setAdminRoute(window.location.hash);
     };
 
     window.addEventListener("hashchange", handleHashChange);
@@ -135,6 +134,9 @@ export default function App() {
     ? posts.slice(0, 5).map((post) => post.title)
     : fallbackPopularPosts;
 
+  const isAdminView = adminRoute.startsWith("#/admin");
+  const isAdminPostsView = adminRoute === "#/admin/posts";
+
   return (
     <div className="app">
       <Header />
@@ -178,6 +180,12 @@ export default function App() {
                 </form>
               </div>
             </section>
+          ) : isAdminPostsView ? (
+            <AdminPostsPage
+              error={postsError}
+              isLoading={isPostsLoading}
+              posts={posts}
+            />
           ) : (
             <AdminPage />
           )
