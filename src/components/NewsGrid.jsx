@@ -15,13 +15,17 @@ export default function NewsGrid({ items, isLoading, error }) {
       ) : null}
       <div className="grid">
         {items.map((item) => (
-          <article key={item.id ?? item.title} className="card">
+          <a
+            key={item.id ?? item.title}
+            className="card card--link"
+            href={`#/post/${item.slug}`}
+          >
             <img src={item.image} alt={item.title} />
             <div className="card__content">
               <h3>{item.title}</h3>
               <span className="card__time">{item.time}</span>
             </div>
-          </article>
+          </a>
         ))}
       </div>
     </section>
