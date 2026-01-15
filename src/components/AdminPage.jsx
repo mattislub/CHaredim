@@ -45,20 +45,6 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
-
-      <div className="admin-credentials section--light">
-        <h2>פרטי כניסה למערכת</h2>
-        <div className="admin-credentials__grid">
-          <div>
-            <span className="admin-credentials__label">שם משתמש</span>
-            <strong>מתתי</strong>
-          </div>
-          <div>
-            <span className="admin-credentials__label">סיסמה</span>
-            <strong>613613</strong>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
