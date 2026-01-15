@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminPage from "./components/AdminPage";
+import AdminPostsPage from "./components/AdminPostsPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
@@ -175,14 +176,16 @@ export default function App() {
     summary: fallbackHeroMain.summary,
   };
 
+  const isAdminRoute = currentHash.startsWith("#/admin");
   const isAdminView = currentHash === "#/admin";
+  const isAdminPostsView = currentHash === "#/admin/posts";
   const isPostView = Boolean(postHashMatch);
 
   return (
     <div className="app">
       <Header />
       <main>
-        {isAdminView ? (
+        {isAdminRoute ? (
           !isAdminAuthenticated ? (
             <section className="admin-login">
               <div className="admin-login__card">
@@ -221,6 +224,12 @@ export default function App() {
                 </form>
               </div>
             </section>
+          ) : isAdminPostsView ? (
+            <AdminPostsPage
+              posts={posts}
+              isLoading={isPostsLoading}
+              error={postsError}
+            />
           ) : (
             <AdminPage />
           )

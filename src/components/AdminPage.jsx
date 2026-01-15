@@ -1,11 +1,12 @@
 const adminActions = [
-  "סטטוס ביקורים",
-  "הוסף פוסט חדש",
-  "הוסף תמונות לגלריה",
-  "הוסף קטגוריה חדשה",
-  "הגדרות כלליות",
-  "ניהול משתמשים",
-  "הודעות אורחים",
+  { label: "ניהול פוסטים", hash: "#/admin/posts" },
+  { label: "סטטוס ביקורים" },
+  { label: "הוסף פוסט חדש" },
+  { label: "הוסף תמונות לגלריה" },
+  { label: "הוסף קטגוריה חדשה" },
+  { label: "הגדרות כלליות" },
+  { label: "ניהול משתמשים" },
+  { label: "הודעות אורחים" },
 ];
 
 const guestMessages = [
@@ -57,8 +58,19 @@ export default function AdminPage() {
           </div>
           <div className="admin-page__buttons">
             {adminActions.map((action) => (
-              <button className="admin-page__button" key={action} type="button">
-                {action}
+              <button
+                className="admin-page__button"
+                key={action.label}
+                type="button"
+                onClick={
+                  action.hash
+                    ? () => {
+                        window.location.hash = action.hash;
+                      }
+                    : undefined
+                }
+              >
+                {action.label}
               </button>
             ))}
           </div>
