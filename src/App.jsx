@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AdminPage from "./components/AdminPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
@@ -7,6 +7,7 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import NewsGrid from "./components/NewsGrid";
 import OpinionColumns from "./components/OpinionColumns";
+import PostPage from "./components/PostPage";
 import PopularList from "./components/PopularList";
 import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
@@ -23,9 +24,7 @@ const ADMIN_USERNAME = "מתתיהו";
 const ADMIN_PASSWORD = "613613";
 
 export default function App() {
-  const [isAdminView, setIsAdminView] = useState(
-    window.location.hash === "#/admin"
-  );
+  const [currentHash, setCurrentHash] = useState(window.location.hash || "#/");
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
     () => sessionStorage.getItem("admin-authenticated") === "true"
   );
@@ -36,7 +35,7 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      setIsAdminView(window.location.hash === "#/admin");
+      setCurrentHash(window.location.hash || "#/");
     };
 
     window.addEventListener("hashchange", handleHashChange);
@@ -87,6 +86,16 @@ export default function App() {
 
   const fallbackImage = fallbackHeroMain.image;
 
+  const slugify = (value) =>
+    value
+      ? value
+          .toString()
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^\p{L}\p{N}-]+/gu, "")
+      : "";
+
   const formatPostTime = (value) => {
     if (!value) {
       return "ללא תאריך";
@@ -125,15 +134,49 @@ export default function App() {
   const resolvedNewsCards = posts.length
     ? posts.map((post) => ({
         id: post.id,
+        slug: String(post.id ?? slugify(post.title)),
         title: post.title,
         time: formatPostTime(post.published_at),
         image: post.featured_image_url || fallbackImage,
       }))
-    : fallbackNewsCards;
+    : fallbackNewsCards.map((item) => ({
+        ...item,
+        slug: slugify(item.title),
+      }));
 
   const resolvedPopularPosts = posts.length
     ? posts.slice(0, 5).map((post) => post.title)
     : fallbackPopularPosts;
+
+  const postHashMatch = useMemo(
+    () => currentHash.match(/^#\/post\/?(.*)$/),
+    [currentHash]
+  );
+  const postSlug = postHashMatch?.[1]
+    ? decodeURIComponent(postHashMatch[1])
+    : "";
+  const postLookupKey = postSlug || resolvedNewsCards[0]?.slug;
+  const resolvedPost = posts.find((post) => {
+    const slug = String(post.id ?? slugify(post.title));
+    return slug === postLookupKey;
+  });
+
+  const fallbackPost = {
+    title: fallbackHeroMain.title,
+    excerpt: fallbackHeroMain.summary,
+    featured_image_url: fallbackHeroMain.image,
+    published_at: new Date().toISOString(),
+    content: null,
+    body: [
+      "הקהילות המקומיות מתכנסות כדי לדון בסוגיות הבוערות שעל סדר היום הציבורי.",
+      "במרכז הכתבה עומדות הקריאות לאחדות, חיזוק עולם התורה ושיתוף פעולה בין המוסדות.",
+      "המשיכו לעקוב אחר העדכונים השוטפים כדי להישאר מעודכנים בהחלטות החשובות.",
+    ],
+    summary: fallbackHeroMain.summary,
+  };
+
+  const isAdminView = currentHash === "#/admin";
+  const isPostView = Boolean(postHashMatch);
 
   return (
     <div className="app">
@@ -181,6 +224,8 @@ export default function App() {
           ) : (
             <AdminPage />
           )
+        ) : isPostView ? (
+          <PostPage post={resolvedPost} fallback={fallbackPost} />
         ) : (
           <>
             <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />
