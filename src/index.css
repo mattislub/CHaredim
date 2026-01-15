@@ -371,10 +371,12 @@ main {
 }
 
 .post-page__image {
-  width: 100%;
+  width: min(100%, 760px);
   border-radius: 24px;
   height: 320px;
   object-fit: cover;
+  margin: 0 auto;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.15);
 }
 
 .post-page__content {
@@ -387,6 +389,15 @@ main {
 
 .post-page__content p {
   margin: 0;
+}
+
+.post-page__content img {
+  display: block;
+  width: min(100%, 720px);
+  margin: 0.75rem auto;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
 .post-page__text--big {
