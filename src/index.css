@@ -363,17 +363,47 @@ main {
 
 .admin-page {
   min-height: 60vh;
+  padding: 2.5rem 0 3rem;
+}
+
+.admin-page__layout {
+  width: min(1200px, 100%);
+  margin: 0 auto;
   display: grid;
-  place-items: center;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  padding: 0 1.5rem;
+}
+
+.admin-page__panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-page__header {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.admin-page__badge {
+  background: rgba(249, 115, 22, 0.15);
+  color: #c2410c;
+  width: fit-content;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin-page__subtitle {
+  color: #64748b;
+  line-height: 1.6;
 }
 
 .admin-page__buttons {
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));
   gap: 1.5rem;
-  width: min(900px, 100%);
-  padding: 1rem;
-  justify-items: center;
 }
 
 .admin-page__button {
@@ -386,12 +416,137 @@ main {
   font-size: 1.05rem;
   cursor: pointer;
   width: 100%;
-  max-width: 240px;
   text-align: center;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
 }
 
+.admin-page__import {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.admin-page__import-card,
+.admin-page__preview {
+  background: #fff;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-page__import-text {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.admin-page__import-hint {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.admin-page__field {
+  display: grid;
+  gap: 0.4rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.admin-page__field input {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+}
+
+.admin-page__import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.admin-page__import-button {
+  border: none;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.7rem 1.3rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-page__import-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-page__import-button--ghost {
+  background: #f97316;
+}
+
+.admin-page__import-button--link {
+  background: transparent;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+.admin-page__import-error {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.admin-page__import-success {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.admin-page__import-meta {
+  display: grid;
+  gap: 0.4rem;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.admin-page__preview-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-page__preview-item {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.admin-page__preview-item img {
+  width: 100%;
+  height: 86px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.admin-page__preview-item h4 {
+  margin-bottom: 0.3rem;
+}
+
+.admin-page__preview-item p {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.admin-page__preview-empty {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 720px) {
+  .admin-page__layout {
+    grid-template-columns: 1fr;
+  }
+
   .admin-page__buttons {
     grid-template-columns: repeat(2, minmax(160px, 1fr));
   }
