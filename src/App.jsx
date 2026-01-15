@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import AdminPage from "./components/AdminPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
@@ -10,18 +12,37 @@ import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
 
 export default function App() {
+  const [isAdminView, setIsAdminView] = useState(
+    window.location.hash === "#/admin"
+  );
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setIsAdminView(window.location.hash === "#/admin");
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   return (
     <div className="app">
       <Header />
       <main>
-        <Hero />
-        <Ticker />
-        <NewsGrid />
-        <Communities />
-        <OpinionColumns />
-        <PopularList />
-        <ExtraContent />
-        <SponsoredArea />
+        {isAdminView ? (
+          <AdminPage />
+        ) : (
+          <>
+            <Hero />
+            <Ticker />
+            <NewsGrid />
+            <Communities />
+            <OpinionColumns />
+            <PopularList />
+            <ExtraContent />
+            <SponsoredArea />
+          </>
+        )}
       </main>
       <Footer />
     </div>
