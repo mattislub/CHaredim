@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { clearWpImport, loadWpImport, saveWpImport } from "../data/wpImport";
 
 const adminActions = [
-  "סטטוס ביקורים",
-  "הוסף פוסט חדש",
-  "הוסף תמונות לגלריה",
-  "הוסף קטגוריה חדשה",
-  "הגדרות כלליות",
-  "ניהול משתמשים",
+  { label: "סטטוס ביקורים", icon: "📊" },
+  { label: "הוסף פוסט חדש", icon: "📝" },
+  { label: "הוסף תמונות לגלריה", icon: "🖼️" },
+  { label: "הוסף קטגוריה חדשה", icon: "➕" },
+  { label: "הגדרות כלליות", icon: "⚙️" },
+  { label: "ניהול משתמשים", icon: "👥" },
 ];
 
 const formatWpDate = (rawDate) => {
@@ -170,8 +170,15 @@ export default function AdminPage() {
           </div>
           <div className="admin-page__buttons">
             {adminActions.map((action) => (
-              <button className="admin-page__button" key={action} type="button">
-                {action}
+              <button
+                className="admin-page__button"
+                key={action.label}
+                type="button"
+              >
+                <span className="button-icon" aria-hidden="true">
+                  {action.icon}
+                </span>
+                {action.label}
               </button>
             ))}
           </div>
@@ -224,6 +231,9 @@ export default function AdminPage() {
                 onClick={handleFetchImport}
                 disabled={status === "loading"}
               >
+                <span className="button-icon" aria-hidden="true">
+                  ⬇️
+                </span>
                 {status === "loading" ? "מייבא נתונים..." : "שאיבת נתונים"}
               </button>
               <button
@@ -232,6 +242,9 @@ export default function AdminPage() {
                 onClick={handleApplyImport}
                 disabled={!importDraft}
               >
+                <span className="button-icon" aria-hidden="true">
+                  ✅
+                </span>
                 עדכון בפרויקט
               </button>
               <button
@@ -240,6 +253,9 @@ export default function AdminPage() {
                 onClick={handleClearImport}
                 disabled={!activeImport}
               >
+                <span className="button-icon" aria-hidden="true">
+                  🧹
+                </span>
                 מחיקת ייבוא
               </button>
             </div>

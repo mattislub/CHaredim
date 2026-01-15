@@ -1,4 +1,10 @@
-const navItems = ["דף הבית", "חדשות", "קהילות", "טורי דעה", "מבזקים"];
+const navItems = [
+  { label: "דף הבית", icon: "🏠" },
+  { label: "חדשות", icon: "📰" },
+  { label: "קהילות", icon: "🏘️" },
+  { label: "טורי דעה", icon: "✍️" },
+  { label: "מבזקים", icon: "⚡" },
+];
 
 export default function Header() {
   return (
@@ -6,8 +12,11 @@ export default function Header() {
       <div className="header__logo">חרדים</div>
       <nav className="header__nav">
         {navItems.map((item) => (
-          <button key={item} type="button" className="header__nav-item">
-            {item}
+          <button key={item.label} type="button" className="header__nav-item">
+            <span className="button-icon" aria-hidden="true">
+              {item.icon}
+            </span>
+            {item.label}
           </button>
         ))}
       </nav>
