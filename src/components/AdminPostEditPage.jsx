@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const buildDefaultPost = (post, mode) => {
   if (post) {
@@ -35,6 +35,31 @@ export default function AdminPostEditPage({
   onBack,
 }) {
   const resolvedPost = useMemo(() => buildDefaultPost(post, mode), [post, mode]);
+  const [imageUrl, setImageUrl] = useState(resolvedPost?.imageUrl ?? "");
+  const [imagePreview, setImagePreview] = useState(
+    resolvedPost?.imageUrl ?? ""
+  );
+  const [imageFileName, setImageFileName] = useState("");
+  const objectUrlRef = useRef(null);
+
+  useEffect(() => {
+    setImageUrl(resolvedPost?.imageUrl ?? "");
+    setImagePreview(resolvedPost?.imageUrl ?? "");
+    setImageFileName("");
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+      objectUrlRef.current = null;
+    }
+  }, [resolvedPost]);
+
+  useEffect(
+    () => () => {
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
+      }
+    },
+    []
+  );
 
   if (isLoading) {
     return (
@@ -77,6 +102,9 @@ export default function AdminPostEditPage({
     mode === "create"
       ? "השלימו את כל השדות והכינו פוסט חדש לפרסום באתר."
       : "כאן ניתן לעדכן תוכן, קטגוריה ותזמון של הפוסט הקיים.";
+  const previewDescription = imagePreview
+    ? "תצוגה מקדימה של התמונה שהוזנה."
+    : "טרם הועלתה תמונה לפוסט.";
 
   return (
     <section className="admin-post-edit">
@@ -146,8 +174,50 @@ export default function AdminPostEditPage({
                 name="image"
                 type="url"
                 placeholder="https://"
-                defaultValue={resolvedPost.imageUrl}
+                value={imageUrl}
+                onChange={(event) => {
+                  const nextValue = event.target.value;
+                  setImageUrl(nextValue);
+                  if (!objectUrlRef.current) {
+                    setImagePreview(nextValue);
+                  }
+                }}
               />
+            </label>
+
+            <label className="admin-post-edit__field">
+              <span>או העלאת תמונה</span>
+              <input
+                name="imageFile"
+                type="file"
+                accept="image/*"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+
+                  if (!file) {
+                    if (objectUrlRef.current) {
+                      URL.revokeObjectURL(objectUrlRef.current);
+                      objectUrlRef.current = null;
+                    }
+                    setImageFileName("");
+                    setImagePreview(imageUrl);
+                    return;
+                  }
+
+                  if (objectUrlRef.current) {
+                    URL.revokeObjectURL(objectUrlRef.current);
+                  }
+                  const objectUrl = URL.createObjectURL(file);
+                  objectUrlRef.current = objectUrl;
+                  setImageFileName(file.name);
+                  setImagePreview(objectUrl);
+                }}
+              />
+              {imageFileName ? (
+                <span className="admin-post-edit__hint">
+                  נבחרה תמונה: {imageFileName}
+                </span>
+              ) : null}
             </label>
 
             <label className="admin-post-edit__field">
@@ -184,6 +254,18 @@ export default function AdminPostEditPage({
 
           <aside className="admin-post-edit__preview">
             <h2>תצוגה מקדימה</h2>
+            <p className="admin-post-edit__preview-caption">
+              {previewDescription}
+            </p>
+            <div className="admin-post-edit__preview-image">
+              {imagePreview ? (
+                <img src={imagePreview} alt={resolvedPost.title || "תמונה לפוסט"} />
+              ) : (
+                <div className="admin-post-edit__preview-placeholder">
+                  אין תמונה להצגה
+                </div>
+              )}
+            </div>
             <p>{resolvedPost.summary || "טרם הוזן תקציר לפוסט."}</p>
             <div className="admin-post-edit__meta">
               <span>{resolvedPost.category}</span>
