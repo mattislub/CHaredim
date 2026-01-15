@@ -95,6 +95,35 @@ router.get("/posts/by-wp/:wp_id", async (req, res, next) => {
   }
 });
 
+router.get("/posts/by-id/:id", async (req, res, next) => {
+  try {
+    const id = Number.parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: "invalid_id" });
+    }
+
+    const result = await query(
+      `SELECT id, title, html, excerpt, featured_image_url, published_at
+       FROM posts
+       WHERE id = $1
+       LIMIT 1`,
+      [id]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "not_found" });
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      res.set("Cache-Control", "public, max-age=60");
+    }
+
+    return res.json(result.rows[0]);
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.get("/posts/:slug", async (req, res, next) => {
   try {
     const { slug } = req.params;
