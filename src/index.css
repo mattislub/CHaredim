@@ -386,8 +386,8 @@ main {
 }
 
 .admin-page__badge {
-  background: rgba(249, 115, 22, 0.15);
-  color: #c2410c;
+  background: rgba(100, 116, 139, 0.18);
+  color: #475569;
   width: fit-content;
   padding: 0.2rem 0.8rem;
   border-radius: 999px;
@@ -417,7 +417,7 @@ main {
 
 .admin-page__button {
   border: none;
-  background: #f97316;
+  background: #4b5563;
   color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 16px;
