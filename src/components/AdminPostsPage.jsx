@@ -13,7 +13,13 @@ const formatPostDate = (value) => {
   });
 };
 
-export default function AdminPostsPage({ posts, isLoading, error }) {
+export default function AdminPostsPage({
+  posts,
+  isLoading,
+  error,
+  onEdit,
+  onCreate,
+}) {
   const hasPosts = posts.length > 0;
 
   return (
@@ -28,7 +34,11 @@ export default function AdminPostsPage({ posts, isLoading, error }) {
             </p>
           </div>
           <div className="admin-posts__actions">
-            <button className="admin-posts__new" type="button">
+            <button
+              className="admin-posts__new"
+              type="button"
+              onClick={onCreate}
+            >
               + יצירת פוסט חדש
             </button>
             <button
@@ -63,7 +73,11 @@ export default function AdminPostsPage({ posts, isLoading, error }) {
                       {post.excerpt || "אין תקציר זמין לפוסט זה."}
                     </p>
                   </div>
-                  <button className="admin-posts__edit" type="button">
+                  <button
+                    className="admin-posts__edit"
+                    type="button"
+                    onClick={() => onEdit?.(post)}
+                  >
                     עריכת פוסט
                   </button>
                 </li>
@@ -72,7 +86,11 @@ export default function AdminPostsPage({ posts, isLoading, error }) {
           ) : (
             <div className="admin-posts__empty">
               <p>עדיין לא נוספו פוסטים. התחילו ביצירת פוסט חדש.</p>
-              <button className="admin-posts__new" type="button">
+              <button
+                className="admin-posts__new"
+                type="button"
+                onClick={onCreate}
+              >
                 + יצירת פוסט חדש
               </button>
             </div>
