@@ -391,7 +391,7 @@ main {
   width: min(1200px, 100%);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
   padding: 0 1.5rem;
 }
@@ -427,6 +427,15 @@ main {
   gap: 1.5rem;
 }
 
+.admin-page__notice {
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0.85rem 1.2rem;
+  font-weight: 600;
+}
+
 .admin-page__button {
   border: 1px solid #fdba74;
   background: #fff7ed;
@@ -443,134 +452,6 @@ main {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-}
-
-.admin-page__import {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.admin-page__import-card,
-.admin-page__preview {
-  background: #fff;
-  border-radius: 24px;
-  padding: 1.5rem;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
-  display: grid;
-  gap: 1rem;
-}
-
-.admin-page__import-text {
-  color: #475569;
-  line-height: 1.6;
-}
-
-.admin-page__import-hint {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.admin-page__field {
-  display: grid;
-  gap: 0.4rem;
-  color: #1e293b;
-  font-weight: 600;
-}
-
-.admin-page__field input {
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 0.7rem 0.9rem;
-  font-size: 1rem;
-}
-
-.admin-page__import-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.admin-page__import-button {
-  border: 1px solid #334155;
-  background: #1f2937;
-  color: #f8fafc;
-  padding: 0.7rem 1.3rem;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 1.05rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.admin-page__import-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.admin-page__import-button--ghost {
-  background: #fff1e6;
-  color: #c2410c;
-  border-color: #fdba74;
-}
-
-.admin-page__import-button--link {
-  background: #f8fafc;
-  color: #0f172a;
-  border: 1px solid #cbd5e1;
-}
-
-.admin-page__import-error {
-  color: #dc2626;
-  font-weight: 600;
-}
-
-.admin-page__import-success {
-  color: #16a34a;
-  font-weight: 600;
-}
-
-.admin-page__import-meta {
-  display: grid;
-  gap: 0.4rem;
-  color: #334155;
-  font-size: 0.95rem;
-}
-
-.admin-page__preview-list {
-  display: grid;
-  gap: 1rem;
-}
-
-.admin-page__preview-item {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 1rem;
-  align-items: center;
-}
-
-.admin-page__preview-item img {
-  width: 100%;
-  height: 86px;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.admin-page__preview-item h4 {
-  margin-bottom: 0.3rem;
-}
-
-.admin-page__preview-item p {
-  color: #64748b;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.admin-page__preview-empty {
-  color: #94a3b8;
-  font-size: 0.95rem;
 }
 
 @media (max-width: 720px) {
