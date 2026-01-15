@@ -362,69 +362,45 @@ main {
 }
 
 .admin-page {
+  min-height: 60vh;
   display: grid;
-  gap: 2rem;
+  place-items: center;
 }
 
-.admin-page__header {
-  background: #0f172a;
-  color: #fff;
-  border-radius: 24px;
-  padding: 2rem;
+.admin-page__buttons {
   display: grid;
-  gap: 0.5rem;
-}
-
-.admin-page__badge {
-  background: rgba(249, 115, 22, 0.2);
-  color: #f97316;
-  width: fit-content;
-  padding: 0.2rem 0.8rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.admin-page__subtitle {
-  color: #e2e8f0;
-  max-width: 520px;
-}
-
-.admin-page__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.admin-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 1.5rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
-  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
   gap: 1.5rem;
-  min-height: 180px;
+  width: min(900px, 100%);
+  padding: 1rem;
+  justify-items: center;
 }
 
-.admin-card h2 {
-  font-size: 1.15rem;
-  margin-bottom: 0.5rem;
-}
-
-.admin-card p {
-  color: #64748b;
-  line-height: 1.5;
-}
-
-.admin-card__button {
+.admin-page__button {
   border: none;
   background: #f97316;
   color: #fff;
-  padding: 0.65rem 1.2rem;
-  border-radius: 999px;
-  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1.05rem;
   cursor: pointer;
-  width: fit-content;
+  width: 100%;
+  max-width: 240px;
+  text-align: center;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+@media (max-width: 720px) {
+  .admin-page__buttons {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-page__buttons {
+    grid-template-columns: minmax(160px, 1fr);
+  }
 }
 
 .admin-login {
