@@ -36,9 +36,19 @@ const stripHtml = (value) => {
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80";
 
+const buildAuthHeader = (username, password) => {
+  if (!username || !password) {
+    return null;
+  }
+
+  return `Basic ${btoa(`${username}:${password}`)}`;
+};
+
 export default function AdminPage() {
   const storedImport = useMemo(() => loadWpImport(), []);
   const [wordpressUrl, setWordpressUrl] = useState(storedImport?.baseUrl ?? "");
+  const [wpUsername, setWpUsername] = useState("");
+  const [wpPassword, setWpPassword] = useState("");
   const [importDraft, setImportDraft] = useState(null);
   const [activeImport, setActiveImport] = useState(storedImport);
   const [status, setStatus] = useState("idle");
@@ -57,11 +67,22 @@ export default function AdminPage() {
 
     try {
       const baseUrl = wordpressUrl.trim().replace(/\/$/, "");
+      const authHeader = buildAuthHeader(wpUsername.trim(), wpPassword.trim());
+      const requestOptions = authHeader
+        ? {
+            headers: {
+              Authorization: authHeader,
+            },
+          }
+        : undefined;
+
       const postsResponse = await fetch(
-        `${baseUrl}/wp-json/wp/v2/posts?per_page=6&_embed=1`
+        `${baseUrl}/wp-json/wp/v2/posts?per_page=6&_embed=1`,
+        requestOptions
       );
       const mediaResponse = await fetch(
-        `${baseUrl}/wp-json/wp/v2/media?per_page=8`
+        `${baseUrl}/wp-json/wp/v2/media?per_page=8`,
+        requestOptions
       );
 
       if (!postsResponse.ok) {
@@ -161,7 +182,7 @@ export default function AdminPage() {
             <h2>ייבוא נתונים מאתר וורדפרס</h2>
             <p className="admin-page__import-text">
               הזינו את כתובת האתר הישן כדי למשוך פוסטים ותמונות דרך ממשק ה-API של
-              וורדפרס.
+              וורדפרס. אם האתר מוגן, הזינו שם משתמש וסיסמה (או סיסמת אפליקציה).
             </p>
             <label className="admin-page__field">
               <span>כתובת אתר וורדפרס</span>
@@ -172,6 +193,30 @@ export default function AdminPage() {
                 onChange={(event) => setWordpressUrl(event.target.value)}
               />
             </label>
+            <label className="admin-page__field">
+              <span>שם משתמש בוורדפרס</span>
+              <input
+                type="text"
+                placeholder="admin"
+                autoComplete="username"
+                value={wpUsername}
+                onChange={(event) => setWpUsername(event.target.value)}
+              />
+            </label>
+            <label className="admin-page__field">
+              <span>סיסמה / סיסמת אפליקציה</span>
+              <input
+                type="password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                value={wpPassword}
+                onChange={(event) => setWpPassword(event.target.value)}
+              />
+            </label>
+            <p className="admin-page__import-hint">
+              הטיפ: אם הייבוא נכשל בגלל CORS, אפשר לבצע את הייבוא משרת באותו דומיין
+              או להפעיל הרשאות CORS באתר הוורדפרס.
+            </p>
             <div className="admin-page__import-actions">
               <button
                 className="admin-page__import-button"

@@ -440,6 +440,12 @@ main {
   line-height: 1.6;
 }
 
+.admin-page__import-hint {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 .admin-page__field {
   display: grid;
   gap: 0.4rem;
