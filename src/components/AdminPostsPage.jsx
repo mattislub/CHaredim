@@ -1,17 +1,6 @@
-const formatPostDate = (value) => {
-  if (!value) {
-    return "ללא תאריך";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "ללא תאריך";
-  }
-  return date.toLocaleDateString("he-IL", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
+import { formatDateWithHebrew } from "../utils/date";
+
+const formatPostDate = (value) => formatDateWithHebrew(value);
 
 export default function AdminPostsPage({
   posts,
