@@ -36,7 +36,7 @@ const fixWpHtml = (html) => {
   );
 };
 
-export default function PostPage({ post, fallback, slug }) {
+export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
   const [fetchedPost, setFetchedPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -101,56 +101,82 @@ export default function PostPage({ post, fallback, slug }) {
   return (
     <section className="post-page" dir="rtl">
       <div className="post-page__layout">
-        <a className="post-page__back" href="#/">
-          חזרה לעמוד הראשי
-        </a>
+        <div className="post-page__main">
+          <a className="post-page__back" href="#/">
+            חזרה לעמוד הראשי
+          </a>
 
-        <div className="post-page__hero">
-          <div className="post-page__meta">
-            <span className="post-page__tag">כתבה</span>
-            <span>{formatPostTime(publishedAt)}</span>
+          <div className="post-page__hero">
+            <div className="post-page__meta">
+              <span className="post-page__tag">כתבה</span>
+              <span>{formatPostTime(publishedAt)}</span>
+            </div>
+
+            <h1>{title}</h1>
+
+            {subtitle ? <p className="post-page__subtitle">{subtitle}</p> : null}
           </div>
 
-          <h1>{title}</h1>
-
-          {subtitle ? <p className="post-page__subtitle">{subtitle}</p> : null}
-        </div>
-
-        {image ? (
-          <img
-            className="post-page__image"
-            src={image}
-            alt={title}
-            loading="lazy"
-          />
-        ) : null}
-
-        <article className="post-page__content">
-          {isLoading ? <p>טוען את הכתבה...</p> : null}
-
-          {error ? (
-            <p role="alert">
-              {error === "not_found" ? "הכתבה לא נמצאה." : "לא הצלחנו לטעון את הכתבה."}
-            </p>
+          {image ? (
+            <img
+              className="post-page__image"
+              src={image}
+              alt={title}
+              loading="lazy"
+            />
           ) : null}
 
-          {!isLoading && !error ? (
-            fixedHtml ? (
-              <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
-            ) : (
-              paragraphs.map((paragraph, index) => (
-                <p key={`${title}-${index}`}>{paragraph}</p>
-              ))
-            )
-          ) : null}
-        </article>
+          <article className="post-page__content">
+            {isLoading ? <p>טוען את הכתבה...</p> : null}
 
-        <div className="post-page__footer">
-          <span>עוד כתבות מחכות בעמוד הראשי.</span>
-          <a href="#/" className="post-page__cta">
-            חזרה לחדשות
-          </a>
+            {error ? (
+              <p role="alert">
+                {error === "not_found"
+                  ? "הכתבה לא נמצאה."
+                  : "לא הצלחנו לטעון את הכתבה."}
+              </p>
+            ) : null}
+
+            {!isLoading && !error ? (
+              fixedHtml ? (
+                <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
+              ) : (
+                paragraphs.map((paragraph, index) => (
+                  <p key={`${title}-${index}`}>{paragraph}</p>
+                ))
+              )
+            ) : null}
+          </article>
+
+          <div className="post-page__footer">
+            <span>עוד כתבות מחכות בעמוד הראשי.</span>
+            <a href="#/" className="post-page__cta">
+              חזרה לחדשות
+            </a>
+          </div>
         </div>
+        <aside className="post-page__aside">
+          <div className="post-page__aside-card">
+            <h2>מהזמן האחרון</h2>
+            <ul className="post-page__aside-list">
+              {recentPosts.map((item) => (
+                <li key={item.slug}>
+                  <a className="post-page__aside-link" href={`#/post/${item.slug}`}>
+                    <span className="post-page__aside-image">
+                      {item.image ? (
+                        <img src={item.image} alt={item.title} loading="lazy" />
+                      ) : null}
+                    </span>
+                    <span className="post-page__aside-title">{item.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {recentPosts.length === 0 ? (
+              <p className="post-page__aside-empty">אין כתבות נוספות כרגע.</p>
+            ) : null}
+          </div>
+        </aside>
       </div>
     </section>
   );
