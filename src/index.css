@@ -439,6 +439,14 @@ main {
   max-width: min(100%, 720px);
 }
 
+.post-page__content iframe[src*="youtube"],
+.post-page__content iframe[src*="youtu.be"] {
+  display: block;
+  margin: 0.75rem auto;
+  max-width: min(100%, 720px);
+  border-radius: 16px;
+}
+
 .post-page__text--big {
   font-size: 1.3em;
   font-weight: 600;
