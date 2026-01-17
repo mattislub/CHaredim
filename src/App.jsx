@@ -215,22 +215,6 @@ export default function App() {
     const slug = getPostSlug(post);
     return slug === postLookupKey;
   });
-  const resolvedRecentPosts = posts.length
-    ? posts
-        .filter((post) => getPostSlug(post) !== postLookupKey)
-        .slice(0, 4)
-        .map((post) => ({
-          title: post.title,
-          slug: getPostSlug(post),
-          image: post.featured_image_url || fallbackImage,
-          published_at: post.published_at,
-        }))
-    : fallbackNewsCards.slice(0, 4).map((item) => ({
-        title: item.title,
-        slug: slugify(item.title),
-        image: item.image,
-        published_at: new Date().toISOString(),
-      }));
 
   const fallbackPost = {
     title: fallbackHeroMain.title,
@@ -338,7 +322,6 @@ export default function App() {
             post={resolvedPost}
             fallback={fallbackPost}
             slug={postSlug}
-            recentPosts={resolvedRecentPosts}
           />
         ) : (
           <>
