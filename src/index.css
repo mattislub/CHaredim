@@ -396,11 +396,15 @@ main {
 }
 
 .post-page__image {
-  width: min(100%, 760px);
+  width: 100%;
+  max-width: 760px;
   border-radius: 24px;
   height: auto;
   margin: 0 auto;
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.15);
+  object-fit: contain;
+  background: #f8fafc;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.18),
+    0 16px 32px rgba(15, 23, 42, 0.15);
 }
 
 .post-page__content {
@@ -417,10 +421,15 @@ main {
 
 .post-page__content img {
   display: block;
-  width: min(100%, 720px);
+  width: 100%;
+  max-width: 720px;
   margin: 0.75rem auto;
   border-radius: 20px;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  height: auto;
+  object-fit: contain;
+  background: #f8fafc;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.18),
+    0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
 .post-page__text--big {
