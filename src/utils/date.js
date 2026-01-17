@@ -4,7 +4,7 @@ const GREGORIAN_FORMATTER = new Intl.DateTimeFormat("he-IL", {
   year: "numeric",
 });
 
-const HEBREW_FORMATTER = new Intl.DateTimeFormat("he-IL-u-ca-hebrew", {
+const HEBREW_FORMATTER = new Intl.DateTimeFormat("he-IL-u-ca-hebrew-nu-hebr", {
   day: "numeric",
   month: "long",
   year: "numeric",
