@@ -331,6 +331,22 @@ main {
   color: #0f172a;
 }
 
+.popular-list__link {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  color: inherit;
+}
+
+.popular-list__image {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .extra-grid {
   display: grid;
   gap: 1rem;

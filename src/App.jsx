@@ -18,12 +18,32 @@ import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
   newsCards as fallbackNewsCards,
-  popularPosts as fallbackPopularPosts,
   tickerItems as fallbackTickerItems,
 } from "./data/mockData";
 
 const ADMIN_USERNAME = "מתתיהו";
 const ADMIN_PASSWORD = "613613";
+
+const createSeededRandom = (seed) => {
+  let value = seed;
+  return () => {
+    value += 0x6d2b79f5;
+    let t = value;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const shuffleArray = (items, seed) => {
+  const random = createSeededRandom(seed);
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+};
 
 export default function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash || "#/");
@@ -34,6 +54,7 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [isPostsLoading, setIsPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState("");
+  const [randomSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -87,6 +108,14 @@ export default function App() {
   };
 
   const fallbackImage = fallbackHeroMain.image;
+  const shuffledPosts = useMemo(
+    () => shuffleArray(posts, randomSeed),
+    [posts, randomSeed]
+  );
+  const shuffledFallbackNewsCards = useMemo(
+    () => shuffleArray(fallbackNewsCards, randomSeed),
+    [randomSeed]
+  );
 
   const slugify = (value) =>
     value
@@ -117,11 +146,11 @@ export default function App() {
 
   const resolvedHeroMain = posts.length
     ? {
-        title: posts[0].title,
-        summary: posts[0].excerpt || "אין תקציר זמין לפוסט זה.",
-        image: posts[0].featured_image_url || fallbackImage,
+        title: shuffledPosts[0].title,
+        summary: shuffledPosts[0].excerpt || "אין תקציר זמין לפוסט זה.",
+        image: shuffledPosts[0].featured_image_url || fallbackImage,
         tag: "חדש",
-        slug: getPostSlug(posts[0]),
+        slug: getPostSlug(shuffledPosts[0]),
       }
     : {
         ...fallbackHeroMain,
@@ -129,7 +158,7 @@ export default function App() {
       };
 
   const resolvedHeroSide = posts.length
-    ? posts.slice(1, 4).map((post) => ({
+    ? shuffledPosts.slice(1, 4).map((post) => ({
         title: post.title,
         tag: "עדכון",
         slug: getPostSlug(post),
@@ -140,7 +169,7 @@ export default function App() {
       }));
 
   const resolvedTickerItems = posts.length
-    ? posts.slice(0, 6).map((post) => ({
+    ? shuffledPosts.slice(0, 6).map((post) => ({
         label: `⚡ ${post.title}`,
         slug: getPostSlug(post),
       }))
@@ -150,26 +179,28 @@ export default function App() {
       }));
 
   const resolvedNewsCards = posts.length
-    ? posts.map((post) => ({
+    ? shuffledPosts.map((post) => ({
         id: post.id,
         slug: getPostSlug(post),
         title: post.title,
         time: formatPostTime(post.published_at),
         image: post.featured_image_url || fallbackImage,
       }))
-    : fallbackNewsCards.map((item) => ({
+    : shuffledFallbackNewsCards.map((item) => ({
         ...item,
         slug: slugify(item.title),
       }));
 
   const resolvedPopularPosts = posts.length
-    ? posts.slice(0, 5).map((post) => ({
+    ? shuffledPosts.slice(0, 5).map((post) => ({
         title: post.title,
         slug: getPostSlug(post),
+        image: post.featured_image_url || fallbackImage,
       }))
-    : fallbackPopularPosts.map((title) => ({
-        title,
-        slug: slugify(title),
+    : shuffledFallbackNewsCards.slice(0, 5).map((item) => ({
+        title: item.title,
+        slug: slugify(item.title),
+        image: item.image || fallbackImage,
       }));
 
   const postHashMatch = useMemo(
