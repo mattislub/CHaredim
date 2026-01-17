@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatDateWithHebrew } from "../utils/date";
 
 const buildParagraphs = (content, fallback) => {
   if (typeof content === "string") {
@@ -11,16 +12,7 @@ const buildParagraphs = (content, fallback) => {
   return Array.isArray(fallback) ? fallback : [];
 };
 
-const formatPostTime = (value) => {
-  if (!value) return "ללא תאריך";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "ללא תאריך";
-  return date.toLocaleDateString("he-IL", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
+const formatPostTime = (value) => formatDateWithHebrew(value);
 
 const fixWpHtml = (html) => {
   if (!html) return "";
