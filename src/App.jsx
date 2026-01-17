@@ -203,6 +203,25 @@ export default function App() {
     const slug = getPostSlug(post);
     return slug === postLookupKey;
   });
+  const resolvedRecentPosts = posts.length
+    ? posts
+        .filter((item) => getPostSlug(item) !== postLookupKey)
+        .sort((a, b) => {
+          const aDate = a.published_at ? new Date(a.published_at).getTime() : 0;
+          const bDate = b.published_at ? new Date(b.published_at).getTime() : 0;
+          return bDate - aDate;
+        })
+        .slice(0, 4)
+        .map((item) => ({
+          title: item.title,
+          slug: getPostSlug(item),
+          time: formatPostTime(item.published_at),
+        }))
+    : shuffledFallbackNewsCards.slice(0, 4).map((item) => ({
+        title: item.title,
+        slug: slugify(item.title),
+        time: item.time,
+      }));
 
   const fallbackPost = {
     title: fallbackHeroMain.title,
@@ -310,6 +329,7 @@ export default function App() {
             post={resolvedPost}
             fallback={fallbackPost}
             slug={postSlug}
+            recentPosts={resolvedRecentPosts}
           />
         ) : (
           <>
