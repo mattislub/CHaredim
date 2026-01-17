@@ -14,6 +14,7 @@ import PopularList from "./components/PopularList";
 import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
 import { fetchPosts } from "./api/posts";
+import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
@@ -127,20 +128,7 @@ export default function App() {
           .replace(/[^\p{L}\p{N}-]+/gu, "")
       : "";
 
-  const formatPostTime = (value) => {
-    if (!value) {
-      return "ללא תאריך";
-    }
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return "ללא תאריך";
-    }
-    return date.toLocaleDateString("he-IL", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  const formatPostTime = (value) => formatDateWithHebrew(value);
 
   const getPostSlug = (post) => String(post.id ?? slugify(post.title));
 
