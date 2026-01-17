@@ -131,14 +131,28 @@ export default function App() {
   const formatPostTime = (value) => formatDateWithHebrew(value);
 
   const getPostSlug = (post) => String(post.id ?? slugify(post.title));
+  const getPostTimestamp = (post) => {
+    const timestamp = new Date(post?.published_at ?? 0).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  };
+
+  const latestPost = useMemo(() => {
+    if (!posts.length) {
+      return null;
+    }
+
+    return posts.reduce((latest, post) =>
+      getPostTimestamp(post) >= getPostTimestamp(latest) ? post : latest
+    );
+  }, [posts]);
 
   const resolvedHeroMain = posts.length
     ? {
-        title: shuffledPosts[0].title,
-        summary: shuffledPosts[0].excerpt || "אין תקציר זמין לפוסט זה.",
-        image: shuffledPosts[0].featured_image_url || fallbackImage,
+        title: latestPost.title,
+        summary: latestPost.excerpt || "אין תקציר זמין לפוסט זה.",
+        image: latestPost.featured_image_url || fallbackImage,
         tag: "חדש",
-        slug: getPostSlug(shuffledPosts[0]),
+        slug: getPostSlug(latestPost),
       }
     : {
         ...fallbackHeroMain,
