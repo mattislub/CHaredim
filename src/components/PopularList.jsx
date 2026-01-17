@@ -7,9 +7,18 @@ export default function PopularList({ items }) {
       </div>
       <ol className="popular-list">
         {items.map((item) => (
-          <li key={item.slug ?? item.title}>
-            <a className="headline-link" href={`#/post/${item.slug}`}>
-              {item.title}
+          <li className="popular-list__item" key={item.slug ?? item.title}>
+            <a
+              className="popular-list__link headline-link"
+              href={`#/post/${item.slug}`}
+            >
+              <img
+                className="popular-list__image"
+                src={item.image}
+                alt={item.title}
+                loading="lazy"
+              />
+              <span>{item.title}</span>
             </a>
           </li>
         ))}
