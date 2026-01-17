@@ -93,7 +93,7 @@ export default function PostPage({ post, fallback, slug }) {
   const image = resolvedPost.featured_image_url || fallback?.featured_image_url || "";
   const publishedAt = resolvedPost.published_at || fallback?.published_at;
 
-  const excerptHtml = resolvedPost.excerpt || fallback?.summary || "";
+  const subtitle = resolvedPost.summary || "";
   const htmlContent = resolvedPost.html || resolvedPost.HTML || "";
   const fixedHtml = useMemo(() => fixWpHtml(htmlContent), [htmlContent]);
   const paragraphs = buildParagraphs(resolvedPost.content, fallback?.body);
@@ -113,12 +113,7 @@ export default function PostPage({ post, fallback, slug }) {
 
           <h1>{title}</h1>
 
-          {excerptHtml ? (
-            <div
-              className="post-page__summary"
-              dangerouslySetInnerHTML={{ __html: fixWpHtml(excerptHtml) }}
-            />
-          ) : null}
+          {subtitle ? <p className="post-page__subtitle">{subtitle}</p> : null}
         </div>
 
         {image ? (
