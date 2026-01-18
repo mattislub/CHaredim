@@ -166,7 +166,9 @@ main {
   animation-duration: 45s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  animation-fill-mode: both;
   animation-play-state: running;
+  will-change: transform;
 }
 
 .ticker__list {
