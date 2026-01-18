@@ -597,9 +597,8 @@ main {
   font-weight: 600;
   line-height: 1.4;
   display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 0.75rem;
-  align-items: center;
+  gap: 0.5rem;
+  justify-items: start;
 }
 
 .post-page__recent-link:hover {
@@ -607,8 +606,9 @@ main {
 }
 
 .post-page__recent-image {
-  width: 56px;
-  height: 56px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
   border-radius: 14px;
   object-fit: cover;
   box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
