@@ -160,7 +160,15 @@ export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
                 {recentItems.map((item) => (
                   <li className="post-page__recent-item" key={item.slug}>
                     <a href={`#/post/${item.slug}`} className="post-page__recent-link">
-                      {item.title}
+                      {item.image ? (
+                        <img
+                          className="post-page__recent-image"
+                          src={item.image}
+                          alt={item.title}
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span className="post-page__recent-text">{item.title}</span>
                     </a>
                     {item.publishedAt ? (
                       <span className="post-page__recent-time">

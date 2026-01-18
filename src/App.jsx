@@ -215,6 +215,7 @@ export default function App() {
         title: post.title,
         slug: getPostSlug(post),
         publishedAt: post.published_at,
+        image: post.featured_image_url || fallbackImage,
       }));
   }, [posts]);
 
