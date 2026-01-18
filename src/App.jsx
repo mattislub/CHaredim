@@ -18,6 +18,7 @@ import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
+  historyCards as fallbackHistoryCards,
   newsCards as fallbackNewsCards,
   tickerItems as fallbackTickerItems,
 } from "./data/mockData";
@@ -193,6 +194,34 @@ export default function App() {
         slug: slugify(item.title),
       }));
 
+  const resolvedHistoryCards = useMemo(() => {
+    if (!posts.length) {
+      return shuffleArray(fallbackHistoryCards, randomSeed).map((item) => ({
+        ...item,
+        slug: slugify(item.title),
+      }));
+    }
+
+    const historyPosts = posts.filter(
+      (post) => (post.category ?? "").trim() === "היסטוריה"
+    );
+
+    if (!historyPosts.length) {
+      return [];
+    }
+
+    return [...historyPosts]
+      .sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a))
+      .slice(0, 6)
+      .map((post) => ({
+        id: post.id,
+        slug: getPostSlug(post),
+        title: post.title,
+        time: formatPostTime(post.published_at),
+        image: post.featured_image_url || fallbackImage,
+      }));
+  }, [posts, randomSeed]);
+
   const resolvedPopularPosts = posts.length
     ? shuffledPosts.slice(0, 5).map((post) => ({
         title: post.title,
@@ -348,6 +377,14 @@ export default function App() {
               items={resolvedNewsCards}
               isLoading={isPostsLoading}
               error={postsError}
+            />
+            <NewsGrid
+              items={resolvedHistoryCards}
+              isLoading={isPostsLoading}
+              error={postsError}
+              title="היסטוריה"
+              hint="מהארכיון הקהילתי"
+              emptyMessage="עדיין אין פוסטים מקטגוריית היסטוריה."
             />
             <Communities />
             <OpinionColumns />

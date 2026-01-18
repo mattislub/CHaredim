@@ -70,6 +70,29 @@ export const newsCards = [
   },
 ];
 
+export const historyCards = [
+  {
+    title: "מתוך הארכיון: ראשית ההתיישבות החרדית במאה ה-19",
+    time: "לפני יומיים",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Old_city_of_Jerusalem_1880.jpg",
+  },
+  {
+    title: "דמויות מפתח בעיצוב עולם התורה בארץ",
+    time: "לפני שלושה ימים",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Old_Jerusalem.jpg",
+  },
+  {
+    title: "הקמת מוסדות החינוך הראשונים בירושלים",
+    time: "לפני שבוע",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Jerusalem_1900.jpg",
+  },
+  {
+    title: "הקהילות הוותיקות והמעבר לשכונות חדשות",
+    time: "לפני שבועיים",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Mea_Shearim_1910.jpg",
+  },
+];
+
 export const communityTabs = [
   {
     name: "ירושלים",
