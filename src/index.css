@@ -163,7 +163,7 @@ main {
   width: max-content;
   align-items: center;
   animation-name: ticker-scroll;
-  animation-duration: 45s;
+  animation-duration: 28s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-play-state: running;
