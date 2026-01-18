@@ -162,7 +162,11 @@ main {
   display: flex;
   width: max-content;
   align-items: center;
-  animation: ticker-scroll 28s linear infinite;
+  animation-name: ticker-scroll;
+  animation-duration: 28s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-play-state: running;
 }
 
 .ticker__list {
