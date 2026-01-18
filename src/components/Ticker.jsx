@@ -1,9 +1,17 @@
 export default function Ticker({ items }) {
-  const limitedItems = items.slice(0, 10);
+  const baseItems = items ?? [];
+  const minItems = 12;
+  const loops = baseItems.length ? Math.ceil(minItems / baseItems.length) : 1;
+  const repeatedItems = Array.from({ length: loops }, (_, loopIndex) =>
+    baseItems.map((item, index) => ({
+      item,
+      key: `${item.slug ?? item.label}-${loopIndex}-${index}`,
+    })),
+  ).flat();
 
   const renderItems = (entries, keySuffix = "") =>
-    entries.map((item, index) => (
-      <span className="ticker__entry" key={`${item.slug ?? item.label}-${index}${keySuffix}`}>
+    entries.map(({ item, key }, index) => (
+      <span className="ticker__entry" key={`${key}${keySuffix}`}>
         <a className="ticker__item" href={`#/post/${item.slug}`}>
           {item.label}
         </a>
@@ -20,9 +28,9 @@ export default function Ticker({ items }) {
       <div className="ticker__label">מבזקים</div>
       <div className="ticker__viewport">
         <div className="ticker__marquee">
-          <div className="ticker__list">{renderItems(limitedItems)}</div>
+          <div className="ticker__list">{renderItems(repeatedItems)}</div>
           <div className="ticker__list" aria-hidden="true">
-            {renderItems(limitedItems, "-duplicate")}
+            {renderItems(repeatedItems, "-duplicate")}
           </div>
         </div>
       </div>
