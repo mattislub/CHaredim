@@ -193,23 +193,12 @@ main {
   transform: translateY(-1px);
 }
 
-.ticker__marquee:hover {
-  animation-play-state: paused;
-}
-
 @keyframes ticker-scroll {
   from {
     transform: translateX(0);
   }
   to {
     transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ticker__marquee {
-    animation: none;
-    transform: translateX(0);
   }
 }
 
