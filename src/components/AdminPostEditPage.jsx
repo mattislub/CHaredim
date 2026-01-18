@@ -212,6 +212,7 @@ export default function AdminPostEditPage({
                 <option value="חינוך">חינוך</option>
                 <option value="תרבות">תרבות</option>
                 <option value="דעות">דעות</option>
+                <option value="היסטוריה">היסטוריה</option>
               </select>
             </label>
           </div>
