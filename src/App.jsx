@@ -205,6 +205,20 @@ export default function App() {
         image: item.image || fallbackImage,
       }));
 
+  const resolvedRecentPosts = useMemo(() => {
+    if (!posts.length) return [];
+
+    return [...posts]
+      .sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a))
+      .slice(0, 6)
+      .map((post) => ({
+        title: post.title,
+        slug: getPostSlug(post),
+        publishedAt: post.published_at,
+        image: post.featured_image_url || fallbackImage,
+      }));
+  }, [posts]);
+
   const postHashMatch = useMemo(
     () => currentHash.match(/^#\/post\/?(.*)$/),
     [currentHash]
@@ -324,6 +338,7 @@ export default function App() {
             post={resolvedPost}
             fallback={fallbackPost}
             slug={postSlug}
+            recentPosts={resolvedRecentPosts}
           />
         ) : (
           <>

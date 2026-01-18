@@ -403,6 +403,18 @@ main {
   gap: 1.5rem;
 }
 
+.post-page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.post-page__main {
+  display: grid;
+  gap: 1.5rem;
+}
+
 .post-page__back {
   width: fit-content;
   text-decoration: none;
@@ -551,6 +563,73 @@ main {
   font-weight: 600;
 }
 
+.post-page__sidebar {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.post-page__sidebar-title {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.post-page__recent-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.post-page__recent-item {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.post-page__recent-link {
+  text-decoration: none;
+  color: #0f172a;
+  font-weight: 600;
+  line-height: 1.4;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.post-page__recent-link:hover {
+  color: #0f766e;
+}
+
+.post-page__recent-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+  background: #e2e8f0;
+}
+
+.post-page__recent-text {
+  color: inherit;
+}
+
+.post-page__recent-time {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.post-page__recent-empty {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
 .sponsored {
   background: #fff7ed;
   border: 1px dashed #f97316;
@@ -593,6 +672,10 @@ main {
 
 @media (max-width: 900px) {
   .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .post-page__grid {
     grid-template-columns: 1fr;
   }
 

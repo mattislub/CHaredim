@@ -28,7 +28,7 @@ const fixWpHtml = (html) => {
   );
 };
 
-export default function PostPage({ post, fallback, slug }) {
+export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
   const [fetchedPost, setFetchedPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -89,6 +89,10 @@ export default function PostPage({ post, fallback, slug }) {
   const htmlContent = resolvedPost.html || resolvedPost.HTML || "";
   const fixedHtml = useMemo(() => fixWpHtml(htmlContent), [htmlContent]);
   const paragraphs = buildParagraphs(resolvedPost.content, fallback?.body);
+  const recentItems = useMemo(
+    () => recentPosts.filter((item) => item?.slug && item.slug !== slug),
+    [recentPosts, slug]
+  );
 
   return (
     <section className="post-page" dir="rtl">
@@ -97,51 +101,87 @@ export default function PostPage({ post, fallback, slug }) {
           חזרה לעמוד הראשי
         </a>
 
-        <div className="post-page__hero">
-          <div className="post-page__meta">
-            <span className="post-page__tag">כתבה</span>
-            <span>{formatPostTime(publishedAt)}</span>
+        <div className="post-page__grid">
+          <div className="post-page__main">
+            <div className="post-page__hero">
+              <div className="post-page__meta">
+                <span className="post-page__tag">כתבה</span>
+                <span>{formatPostTime(publishedAt)}</span>
+              </div>
+
+              <h1>{title}</h1>
+
+              {subtitle ? <p className="post-page__subtitle">{subtitle}</p> : null}
+            </div>
+
+            {image ? (
+              <img
+                className="post-page__image"
+                src={image}
+                alt={title}
+                loading="lazy"
+              />
+            ) : null}
+
+            <article className="post-page__content">
+              {isLoading ? <p>טוען את הכתבה...</p> : null}
+
+              {error ? (
+                <p role="alert">
+                  {error === "not_found"
+                    ? "הכתבה לא נמצאה."
+                    : "לא הצלחנו לטעון את הכתבה."}
+                </p>
+              ) : null}
+
+              {!isLoading && !error ? (
+                fixedHtml ? (
+                  <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
+                ) : (
+                  paragraphs.map((paragraph, index) => (
+                    <p key={`${title}-${index}`}>{paragraph}</p>
+                  ))
+                )
+              ) : null}
+            </article>
+
+            <div className="post-page__footer">
+              <span>עוד כתבות מחכות בעמוד הראשי.</span>
+              <a href="#/" className="post-page__cta">
+                חזרה לחדשות
+              </a>
+            </div>
           </div>
 
-          <h1>{title}</h1>
-
-          {subtitle ? <p className="post-page__subtitle">{subtitle}</p> : null}
-        </div>
-
-        {image ? (
-          <img
-            className="post-page__image"
-            src={image}
-            alt={title}
-            loading="lazy"
-          />
-        ) : null}
-
-        <article className="post-page__content">
-          {isLoading ? <p>טוען את הכתבה...</p> : null}
-
-          {error ? (
-            <p role="alert">
-              {error === "not_found" ? "הכתבה לא נמצאה." : "לא הצלחנו לטעון את הכתבה."}
-            </p>
-          ) : null}
-
-          {!isLoading && !error ? (
-            fixedHtml ? (
-              <div dangerouslySetInnerHTML={{ __html: fixedHtml }} />
+          <aside className="post-page__sidebar">
+            <h2 className="post-page__sidebar-title">פוסטים אחרונים</h2>
+            {recentItems.length ? (
+              <ul className="post-page__recent-list">
+                {recentItems.map((item) => (
+                  <li className="post-page__recent-item" key={item.slug}>
+                    <a href={`#/post/${item.slug}`} className="post-page__recent-link">
+                      {item.image ? (
+                        <img
+                          className="post-page__recent-image"
+                          src={item.image}
+                          alt={item.title}
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span className="post-page__recent-text">{item.title}</span>
+                    </a>
+                    {item.publishedAt ? (
+                      <span className="post-page__recent-time">
+                        {formatPostTime(item.publishedAt)}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              paragraphs.map((paragraph, index) => (
-                <p key={`${title}-${index}`}>{paragraph}</p>
-              ))
-            )
-          ) : null}
-        </article>
-
-        <div className="post-page__footer">
-          <span>עוד כתבות מחכות בעמוד הראשי.</span>
-          <a href="#/" className="post-page__cta">
-            חזרה לחדשות
-          </a>
+              <p className="post-page__recent-empty">אין פוסטים אחרונים להצגה.</p>
+            )}
+          </aside>
         </div>
       </div>
     </section>
