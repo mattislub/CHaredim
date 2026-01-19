@@ -648,6 +648,18 @@ main {
     0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
+.post-page__content video {
+  display: block;
+  width: auto;
+  max-width: min(100%, 720px);
+  margin: 0.75rem auto;
+  border-radius: 16px;
+  height: auto;
+  background: #0f172a;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.18),
+    0 12px 24px rgba(15, 23, 42, 0.12);
+}
+
 .post-page__content iframe[src*="youtube"],
 .post-page__content iframe[src*="youtu.be"] {
   display: block;
