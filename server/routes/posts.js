@@ -50,10 +50,10 @@ const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
   if (!termIds.length) return [];
 
   const result = await query(
-    `SELECT id, slug, title
+    `SELECT id, slug, title, featured_image_url
      FROM (
        SELECT DISTINCT ON (p.id)
-         p.id, p.slug, p.title, p.published_at
+         p.id, p.slug, p.title, p.published_at, p.featured_image_url
        FROM posts p
        INNER JOIN post_terms pt ON pt.post_id = p.id
        INNER JOIN terms t ON t.id = pt.term_id
