@@ -5,6 +5,7 @@ import AdminPostsPage from "./components/AdminPostsPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
+import GalleryPage from "./components/GalleryPage";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import NewsGrid from "./components/NewsGrid";
@@ -278,6 +279,7 @@ export default function App() {
   const isAdminRoute = currentHash.startsWith("#/admin");
   const isAdminView = currentHash === "#/admin";
   const isAdminPostsView = currentHash === "#/admin/posts";
+  const isGalleryView = currentHash === "#/galleries";
   const adminEditMatch = useMemo(
     () => currentHash.match(/^#\/admin\/posts\/edit\/?(.*)$/),
     [currentHash]
@@ -368,6 +370,13 @@ export default function App() {
             fallback={fallbackPost}
             slug={postSlug}
             recentPosts={resolvedRecentPosts}
+          />
+        ) : isGalleryView ? (
+          <GalleryPage
+            posts={posts}
+            isLoading={isPostsLoading}
+            error={postsError}
+            getPostSlug={getPostSlug}
           />
         ) : (
           <>
