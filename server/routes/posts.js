@@ -5,6 +5,41 @@ const router = Router();
 
 const MAX_LIMIT = 100;
 
+const POST_WITH_TERMS_SELECT = `
+  SELECT
+    p.id,
+    p.slug,
+    p.title,
+    p.html,
+    p.excerpt,
+    p.published_at,
+    p.modified_at,
+    p.featured_image_url,
+    COALESCE(
+      jsonb_agg(
+        DISTINCT jsonb_build_object(
+          'id', t.id,
+          'name', t.name,
+          'slug', t.slug
+        )
+      ) FILTER (WHERE t.taxonomy = 'category'),
+      '[]'::jsonb
+    ) AS categories,
+    COALESCE(
+      jsonb_agg(
+        DISTINCT jsonb_build_object(
+          'id', t.id,
+          'name', t.name,
+          'slug', t.slug
+        )
+      ) FILTER (WHERE t.taxonomy = 'post_tag'),
+      '[]'::jsonb
+    ) AS tags
+  FROM posts p
+  LEFT JOIN post_terms pt ON pt.post_id = p.id
+  LEFT JOIN terms t ON t.id = pt.term_id
+`;
+
 router.get("/posts", async (req, res, next) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
@@ -74,9 +109,9 @@ router.get("/posts/by-wp/:wp_id", async (req, res, next) => {
     }
 
     const result = await query(
-      `SELECT id, slug, title, html, excerpt, published_at, modified_at, featured_image_url
-       FROM posts
-       WHERE wp_id = $1
+      `${POST_WITH_TERMS_SELECT}
+       WHERE p.wp_id = $1
+       GROUP BY p.id
        LIMIT 1`,
       [wpId]
     );
@@ -103,9 +138,9 @@ router.get("/posts/by-id/:id", async (req, res, next) => {
     }
 
     const result = await query(
-      `SELECT id, title, html, excerpt, featured_image_url, published_at
-       FROM posts
-       WHERE id = $1
+      `${POST_WITH_TERMS_SELECT}
+       WHERE p.id = $1
+       GROUP BY p.id
        LIMIT 1`,
       [id]
     );
@@ -128,9 +163,9 @@ router.get("/posts/:slug", async (req, res, next) => {
   try {
     const { slug } = req.params;
     const result = await query(
-      `SELECT id, slug, title, html, excerpt, published_at, modified_at, featured_image_url
-       FROM posts
-       WHERE slug = $1
+      `${POST_WITH_TERMS_SELECT}
+       WHERE p.slug = $1
+       GROUP BY p.id
        LIMIT 1`,
       [slug]
     );
