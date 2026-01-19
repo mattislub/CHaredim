@@ -69,10 +69,8 @@ const buildPreviewImages = (images, startIndex, count) => {
   });
 };
 
-const isInGalleryCategory = (post) => {
-  const categories = Array.isArray(post?.categories) ? post.categories : [];
-  return categories.some((category) => category?.name === "גלריות");
-};
+const isInGalleryCategory = (post) =>
+  post?.categories?.some((category) => category?.name === "גלריות");
 
 const GalleryCard = ({ post, images, slug }) => {
   const [startIndex, setStartIndex] = useState(0);
