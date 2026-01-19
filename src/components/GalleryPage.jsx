@@ -70,7 +70,7 @@ const buildPreviewImages = (images, startIndex, count) => {
 };
 
 const isInGalleryCategory = (post) =>
-  post?.categories?.some((category) => category?.name === "גלריות");
+  post?.categories?.some((category) => category?.name?.trim() === "גלריות");
 
 const GalleryCard = ({ post, images, slug }) => {
   const [startIndex, setStartIndex] = useState(0);
@@ -120,10 +120,7 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
     if (!posts.length) return [];
 
     return posts
-      .filter((post) => {
-        const categories = Array.isArray(post.categories) ? post.categories : [];
-        return categories.some((c) => (c?.name || "").trim() === "גלריות");
-      })
+      .filter((post) => isInGalleryCategory(post) ?? false)
       .map((post) => ({
         post,
         images: extractPostImages(post),
