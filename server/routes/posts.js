@@ -105,19 +105,19 @@ router.get("/posts", async (req, res, next) => {
       values.push(`%${q}%`);
       values.push(`%${q}%`);
       conditions.push(
-        `(title ILIKE $${values.length - 1} OR excerpt ILIKE $${values.length})`
+        `(p.title ILIKE $${values.length - 1} OR p.excerpt ILIKE $${values.length})`
       );
     }
 
     if (status) {
       values.push(status);
-      conditions.push(`status = $${values.length}`);
+      conditions.push(`p.status = $${values.length}`);
     }
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const totalResult = await query(
-      `SELECT COUNT(*)::bigint AS total FROM posts ${whereClause}`,
+      `SELECT COUNT(*)::bigint AS total FROM posts p ${whereClause}`,
       values
     );
     const total = Number(totalResult.rows[0]?.total ?? 0);
@@ -125,10 +125,10 @@ router.get("/posts", async (req, res, next) => {
     const offset = (page - 1) * limit;
 
     const itemsResult = await query(
-      `SELECT id, slug, title, excerpt, published_at, featured_image_url
-       FROM posts
+      `${POST_WITH_TERMS_SELECT}
        ${whereClause}
-       ORDER BY published_at DESC NULLS LAST, id DESC
+       GROUP BY p.id
+       ORDER BY p.published_at DESC NULLS LAST, p.id DESC
        LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
       [...values, limit, offset]
     );
