@@ -52,13 +52,15 @@ const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
   const result = await query(
     `SELECT id, slug, title
      FROM (
-       SELECT DISTINCT p.id, p.slug, p.title, p.published_at
+       SELECT DISTINCT ON (p.id)
+         p.id, p.slug, p.title, p.published_at
        FROM posts p
        INNER JOIN post_terms pt ON pt.post_id = p.id
        INNER JOIN terms t ON t.id = pt.term_id
        WHERE p.id <> $1
          AND t.taxonomy = $2
          AND t.id = ANY($3::int[])
+       ORDER BY p.id, p.published_at DESC NULLS LAST
      ) AS related
      ORDER BY published_at DESC NULLS LAST, id DESC
      LIMIT $4`,
