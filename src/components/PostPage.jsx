@@ -167,6 +167,23 @@ export default function PostPage({
   const relatedByTags = Array.isArray(resolvedPost.relatedByTags)
     ? resolvedPost.relatedByTags
     : computedRelatedByTags;
+  const normalizeRelatedItems = (items) =>
+    (Array.isArray(items) ? items : [])
+      .map((item) => ({
+        ...item,
+        title: item?.title,
+        slug: resolveSlug(item),
+        image: item?.featured_image_url || item?.image || "",
+      }))
+      .filter((item) => item.title && item.slug);
+  const relatedByCategoryItems = useMemo(
+    () => normalizeRelatedItems(relatedByCategory),
+    [relatedByCategory, getPostSlug]
+  );
+  const relatedByTagsItems = useMemo(
+    () => normalizeRelatedItems(relatedByTags),
+    [relatedByTags, getPostSlug]
+  );
 
   return (
     <section className="post-page" dir="rtl">
@@ -258,16 +275,16 @@ export default function PostPage({
             <div className="post-page__related">
               <div className="post-page__related-group">
                 <h2 className="post-page__related-title">עוד באותה קטגוריה</h2>
-                {relatedByCategory.length ? (
+                {relatedByCategoryItems.length ? (
                   <ul className="post-page__related-list">
-                    {relatedByCategory.map((item) => (
+                    {relatedByCategoryItems.map((item) => (
                       <li className="post-page__related-item" key={item.slug}>
                         <a href={`#/post/${item.slug}`} className="post-page__related-card">
                           <span className="post-page__related-media">
-                            {item.featured_image_url || item.image ? (
+                            {item.image ? (
                               <img
                                 className="post-page__related-image"
-                                src={item.featured_image_url || item.image}
+                                src={item.image}
                                 alt={item.title}
                                 loading="lazy"
                               />
@@ -292,16 +309,16 @@ export default function PostPage({
 
               <div className="post-page__related-group">
                 <h2 className="post-page__related-title">עוד עם אותם תגיות</h2>
-                {relatedByTags.length ? (
+                {relatedByTagsItems.length ? (
                   <ul className="post-page__related-list">
-                    {relatedByTags.map((item) => (
+                    {relatedByTagsItems.map((item) => (
                       <li className="post-page__related-item" key={item.slug}>
                         <a href={`#/post/${item.slug}`} className="post-page__related-card">
                           <span className="post-page__related-media">
-                            {item.featured_image_url || item.image ? (
+                            {item.image ? (
                               <img
                                 className="post-page__related-image"
-                                src={item.featured_image_url || item.image}
+                                src={item.image}
                                 alt={item.title}
                                 loading="lazy"
                               />
