@@ -120,7 +120,10 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
     if (!posts.length) return [];
 
     return posts
-      .filter(isInGalleryCategory)
+      .filter((post) => {
+        const categories = Array.isArray(post.categories) ? post.categories : [];
+        return categories.some((c) => (c?.name || "").trim() === "גלריות");
+      })
       .map((post) => ({
         post,
         images: extractPostImages(post),
