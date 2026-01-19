@@ -380,6 +380,13 @@ export default function App() {
             error={postsError}
             getPostSlug={getPostSlug}
           />
+        ) : isGalleryView ? (
+          <GalleryPage
+            posts={posts}
+            isLoading={isPostsLoading}
+            error={postsError}
+            getPostSlug={getPostSlug}
+          />
         ) : (
           <>
             <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />
