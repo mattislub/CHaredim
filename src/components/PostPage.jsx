@@ -28,7 +28,19 @@ const fixWpHtml = (html) => {
   );
 };
 
-export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
+const getTaxonomyKey = (item) =>
+  String(item?.id ?? item?.slug ?? item?.name ?? "")
+    .trim()
+    .toLowerCase();
+
+export default function PostPage({
+  post,
+  fallback,
+  slug,
+  recentPosts = [],
+  allPosts = [],
+  getPostSlug,
+}) {
   const [fetchedPost, setFetchedPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -84,6 +96,8 @@ export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
   const title = resolvedPost.title || fallback?.title || "";
   const image = resolvedPost.featured_image_url || fallback?.featured_image_url || "";
   const publishedAt = resolvedPost.published_at || fallback?.published_at;
+  const categories = Array.isArray(resolvedPost.categories) ? resolvedPost.categories : [];
+  const tags = Array.isArray(resolvedPost.tags) ? resolvedPost.tags : [];
 
   const subtitle = resolvedPost.summary || "";
   const htmlContent = resolvedPost.html || resolvedPost.HTML || "";
@@ -93,6 +107,57 @@ export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
     () => recentPosts.filter((item) => item?.slug && item.slug !== slug),
     [recentPosts, slug]
   );
+
+  const resolveSlug = (item) => {
+    if (typeof getPostSlug === "function") {
+      return getPostSlug(item);
+    }
+    return String(item?.slug ?? item?.id ?? item?.title ?? "");
+  };
+
+  const categoryKeys = useMemo(
+    () => new Set(categories.map(getTaxonomyKey).filter(Boolean)),
+    [categories]
+  );
+
+  const tagKeys = useMemo(
+    () => new Set(tags.map(getTaxonomyKey).filter(Boolean)),
+    [tags]
+  );
+
+  const relatedByCategory = useMemo(() => {
+    if (!allPosts.length || !categoryKeys.size) return [];
+
+    return allPosts
+      .filter((item) => {
+        const itemSlug = resolveSlug(item);
+        if (!itemSlug || itemSlug === slug) return false;
+        const itemCategories = Array.isArray(item?.categories) ? item.categories : [];
+        return itemCategories.some((category) => categoryKeys.has(getTaxonomyKey(category)));
+      })
+      .map((item) => ({
+        title: item?.title,
+        slug: resolveSlug(item),
+      }))
+      .filter((item) => item.title && item.slug);
+  }, [allPosts, categoryKeys, slug, getPostSlug]);
+
+  const relatedByTags = useMemo(() => {
+    if (!allPosts.length || !tagKeys.size) return [];
+
+    return allPosts
+      .filter((item) => {
+        const itemSlug = resolveSlug(item);
+        if (!itemSlug || itemSlug === slug) return false;
+        const itemTags = Array.isArray(item?.tags) ? item.tags : [];
+        return itemTags.some((tag) => tagKeys.has(getTaxonomyKey(tag)));
+      })
+      .map((item) => ({
+        title: item?.title,
+        slug: resolveSlug(item),
+      }))
+      .filter((item) => item.title && item.slug);
+  }, [allPosts, tagKeys, slug, getPostSlug]);
 
   return (
     <section className="post-page" dir="rtl">
@@ -112,6 +177,42 @@ export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
               <h1>{title}</h1>
 
               {subtitle ? <p className="post-page__subtitle">{subtitle}</p> : null}
+
+              {categories.length || tags.length ? (
+                <div className="post-page__taxonomies">
+                  {categories.length ? (
+                    <div className="post-page__taxonomy-group">
+                      <span className="post-page__taxonomy-label">קטגוריות:</span>
+                      <ul className="post-page__taxonomy-list" aria-label="קטגוריות">
+                        {categories.map((category) => (
+                          <li
+                            className="post-page__taxonomy-chip post-page__taxonomy-chip--category"
+                            key={category.id ?? category.slug ?? category.name}
+                          >
+                            {category.name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+
+                  {tags.length ? (
+                    <div className="post-page__taxonomy-group">
+                      <span className="post-page__taxonomy-label">תגיות:</span>
+                      <ul className="post-page__taxonomy-list" aria-label="תגיות">
+                        {tags.map((tag) => (
+                          <li
+                            className="post-page__taxonomy-chip post-page__taxonomy-chip--tag"
+                            key={tag.id ?? tag.slug ?? tag.name}
+                          >
+                            {tag.name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
 
             {image ? (
@@ -144,6 +245,46 @@ export default function PostPage({ post, fallback, slug, recentPosts = [] }) {
                 )
               ) : null}
             </article>
+
+            <div className="post-page__related">
+              <div className="post-page__related-group">
+                <h2 className="post-page__related-title">עוד מהקטגוריה</h2>
+                {relatedByCategory.length ? (
+                  <ul className="post-page__related-list">
+                    {relatedByCategory.map((item) => (
+                      <li className="post-page__related-item" key={item.slug}>
+                        <a href={`#/post/${item.slug}`} className="post-page__related-link">
+                          {item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="post-page__related-empty">
+                    אין פוסטים נוספים באותה קטגוריה.
+                  </p>
+                )}
+              </div>
+
+              <div className="post-page__related-group">
+                <h2 className="post-page__related-title">עוד מתגיות דומות</h2>
+                {relatedByTags.length ? (
+                  <ul className="post-page__related-list">
+                    {relatedByTags.map((item) => (
+                      <li className="post-page__related-item" key={item.slug}>
+                        <a href={`#/post/${item.slug}`} className="post-page__related-link">
+                          {item.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="post-page__related-empty">
+                    אין פוסטים נוספים עם תגיות דומות.
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div className="post-page__footer">
               <span>עוד כתבות מחכות בעמוד הראשי.</span>
