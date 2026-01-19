@@ -112,6 +112,7 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
     if (!posts.length) return [];
 
     return posts
+      .filter((post) => (post.category ?? "").trim() === "גלריות")
       .map((post) => ({
         post,
         images: extractPostImages(post),
