@@ -69,6 +69,11 @@ const buildPreviewImages = (images, startIndex, count) => {
   });
 };
 
+const isInGalleryCategory = (post) => {
+  const categories = Array.isArray(post?.categories) ? post.categories : [];
+  return categories.some((category) => (category?.name || "").trim() === "גלריות");
+};
+
 const GalleryCard = ({ post, images, slug }) => {
   const [startIndex, setStartIndex] = useState(0);
 
@@ -117,11 +122,12 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
     if (!posts.length) return [];
 
     return posts
-      .filter((post) => (post.category ?? "").trim() === "גלריות")
+      .filter(isInGalleryCategory)
       .map((post) => ({
         post,
         images: extractPostImages(post),
-      }));
+      }))
+      .filter(({ images }) => images.length >= 5);
   }, [posts]);
 
   return (
@@ -159,7 +165,9 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
             })}
           </div>
         ) : (
-          <p className="gallery-page__empty">עדיין אין פוסטים עם 5 תמונות ומעלה להצגה.</p>
+          <p className="gallery-page__empty">
+            עדיין אין פוסטים בקטגוריית גלריות עם 5 תמונות ומעלה להצגה.
+          </p>
         )
       ) : null}
     </section>
