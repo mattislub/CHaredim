@@ -4,6 +4,7 @@ import { query } from "../db.js";
 const router = Router();
 
 const MAX_LIMIT = 100;
+const RELATED_LIMIT = 6;
 
 const POST_WITH_TERMS_SELECT = `
   SELECT
@@ -39,6 +40,48 @@ const POST_WITH_TERMS_SELECT = `
   LEFT JOIN post_terms pt ON pt.post_id = p.id
   LEFT JOIN terms t ON t.id = pt.term_id
 `;
+
+const normalizeTermIds = (items) =>
+  (Array.isArray(items) ? items : [])
+    .map((item) => Number.parseInt(item?.id, 10))
+    .filter((value) => Number.isInteger(value));
+
+const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
+  if (!termIds.length) return [];
+
+  const result = await query(
+    `SELECT DISTINCT p.id, p.slug, p.title
+     FROM posts p
+     INNER JOIN post_terms pt ON pt.post_id = p.id
+     INNER JOIN terms t ON t.id = pt.term_id
+     WHERE p.id <> $1
+       AND t.taxonomy = $2
+       AND t.id = ANY($3::int[])
+     ORDER BY p.published_at DESC NULLS LAST, p.id DESC
+     LIMIT $4`,
+    [postId, taxonomy, termIds, RELATED_LIMIT]
+  );
+
+  return result.rows;
+};
+
+const attachRelatedPosts = async (post) => {
+  if (!post) return post;
+
+  const categoryIds = normalizeTermIds(post.categories);
+  const tagIds = normalizeTermIds(post.tags);
+
+  const [relatedByCategory, relatedByTags] = await Promise.all([
+    fetchRelatedPosts(post.id, categoryIds, "category"),
+    fetchRelatedPosts(post.id, tagIds, "post_tag"),
+  ]);
+
+  return {
+    ...post,
+    relatedByCategory,
+    relatedByTags,
+  };
+};
 
 router.get("/posts", async (req, res, next) => {
   try {
@@ -177,7 +220,9 @@ router.get("/posts/by-wp/:wp_id", async (req, res, next) => {
       res.set("Cache-Control", "public, max-age=60");
     }
 
-    return res.json(result.rows[0]);
+    const resolvedPost = await attachRelatedPosts(result.rows[0]);
+
+    return res.json(resolvedPost);
   } catch (err) {
     return next(err);
   }
@@ -206,7 +251,9 @@ router.get("/posts/by-id/:id", async (req, res, next) => {
       res.set("Cache-Control", "public, max-age=60");
     }
 
-    return res.json(result.rows[0]);
+    const resolvedPost = await attachRelatedPosts(result.rows[0]);
+
+    return res.json(resolvedPost);
   } catch (err) {
     return next(err);
   }
@@ -231,7 +278,9 @@ router.get("/posts/:slug", async (req, res, next) => {
       res.set("Cache-Control", "public, max-age=60");
     }
 
-    return res.json(result.rows[0]);
+    const resolvedPost = await attachRelatedPosts(result.rows[0]);
+
+    return res.json(resolvedPost);
   } catch (err) {
     return next(err);
   }

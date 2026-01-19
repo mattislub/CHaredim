@@ -125,7 +125,7 @@ export default function PostPage({
     [tags]
   );
 
-  const relatedByCategory = useMemo(() => {
+  const computedRelatedByCategory = useMemo(() => {
     if (!allPosts.length || !categoryKeys.size) return [];
 
     return allPosts
@@ -142,7 +142,7 @@ export default function PostPage({
       .filter((item) => item.title && item.slug);
   }, [allPosts, categoryKeys, slug, getPostSlug]);
 
-  const relatedByTags = useMemo(() => {
+  const computedRelatedByTags = useMemo(() => {
     if (!allPosts.length || !tagKeys.size) return [];
 
     return allPosts
@@ -158,6 +158,13 @@ export default function PostPage({
       }))
       .filter((item) => item.title && item.slug);
   }, [allPosts, tagKeys, slug, getPostSlug]);
+
+  const relatedByCategory = Array.isArray(resolvedPost.relatedByCategory)
+    ? resolvedPost.relatedByCategory
+    : computedRelatedByCategory;
+  const relatedByTags = Array.isArray(resolvedPost.relatedByTags)
+    ? resolvedPost.relatedByTags
+    : computedRelatedByTags;
 
   return (
     <section className="post-page" dir="rtl">
@@ -248,7 +255,7 @@ export default function PostPage({
 
             <div className="post-page__related">
               <div className="post-page__related-group">
-                <h2 className="post-page__related-title">עוד מהקטגוריה</h2>
+                <h2 className="post-page__related-title">עוד באותה קטגוריה</h2>
                 {relatedByCategory.length ? (
                   <ul className="post-page__related-list">
                     {relatedByCategory.map((item) => (
@@ -267,7 +274,7 @@ export default function PostPage({
               </div>
 
               <div className="post-page__related-group">
-                <h2 className="post-page__related-title">עוד מתגיות דומות</h2>
+                <h2 className="post-page__related-title">עוד עם אותם תגיות</h2>
                 {relatedByTags.length ? (
                   <ul className="post-page__related-list">
                     {relatedByTags.map((item) => (
