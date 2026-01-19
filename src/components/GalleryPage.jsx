@@ -28,7 +28,7 @@ const collectImagesFromArray = (set, values) => {
 
 const collectImagesFromHtml = (set, html) => {
   if (typeof html !== "string") return;
-  const imgRegex = /<img[^>]+src=["']([^"']+)["']/g;
+  const imgRegex = /<img[^>]+(?:src|data-src)=["']([^"']+)["']/g;
   const linkRegex =
     /<a[^>]+href=["']([^"']+\.(?:png|jpe?g|gif|webp|svg))["']/gi;
   let match;
