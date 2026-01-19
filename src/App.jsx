@@ -370,6 +370,8 @@ export default function App() {
             fallback={fallbackPost}
             slug={postSlug}
             recentPosts={resolvedRecentPosts}
+            allPosts={posts}
+            getPostSlug={getPostSlug}
           />
         ) : isGalleryView ? (
           <GalleryPage
