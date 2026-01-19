@@ -28,9 +28,14 @@ const collectImagesFromArray = (set, values) => {
 
 const collectImagesFromHtml = (set, html) => {
   if (typeof html !== "string") return;
-  const regex = /<img[^>]+src=["']([^"']+)["']/g;
+  const imgRegex = /<img[^>]+src=["']([^"']+)["']/g;
+  const linkRegex =
+    /<a[^>]+href=["']([^"']+\.(?:png|jpe?g|gif|webp|svg))["']/gi;
   let match;
-  while ((match = regex.exec(html)) !== null) {
+  while ((match = imgRegex.exec(html)) !== null) {
+    addImage(set, match[1]);
+  }
+  while ((match = linkRegex.exec(html)) !== null) {
     addImage(set, match[1]);
   }
 };
@@ -116,8 +121,7 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
       .map((post) => ({
         post,
         images: extractPostImages(post),
-      }))
-      .filter((item) => item.images.length >= 5);
+      }));
   }, [posts]);
 
   return (
