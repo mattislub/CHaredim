@@ -267,6 +267,10 @@ main {
   gap: 1.5rem;
 }
 
+.gallery-page__grid--full {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .gallery-page__actions {
   display: flex;
   justify-content: center;
@@ -1753,31 +1757,69 @@ main {
 }
 
 .admin-post-edit__toolbar {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  border-radius: 18px;
+  background: #f1f5f9;
+  border: 1px solid #dbeafe;
+}
+
+.admin-post-edit__toolbar-group {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+}
+
+.admin-post-edit__toolbar-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #475569;
+  padding-inline-end: 0.35rem;
 }
 
 .admin-post-edit__tool {
   border: 1px solid #cbd5f5;
   background: #fff;
   color: #1e293b;
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .admin-post-edit__tool:hover {
   border-color: #94a3b8;
+  background: #eef2ff;
+  transform: translateY(-1px);
+}
+
+.admin-post-edit__tool--accent {
+  border-color: #6366f1;
+  background: #eef2ff;
+  color: #3730a3;
 }
 
 .admin-post-edit__field textarea {
   resize: vertical;
+}
+
+.admin-post-edit__textarea {
+  min-height: 260px;
+  line-height: 1.7;
+  font-size: 1rem;
+  background: #fff;
+  border-color: #cbd5f5;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.admin-post-edit__textarea:focus {
+  outline: 2px solid rgba(99, 102, 241, 0.3);
+  border-color: #6366f1;
+  box-shadow: 0 16px 32px rgba(99, 102, 241, 0.2);
 }
 
 .admin-post-edit__hint {

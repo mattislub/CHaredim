@@ -31,16 +31,7 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
     <section className="gallery-page" dir="rtl">
       <div className="gallery-page__header">
         <p className="gallery-page__badge">גלריות</p>
-        <h1>גלריות תמונות מהקהילות</h1>
-        <p className="gallery-page__subtitle">
-          כאן תוכלו למצוא פוסטים עתירי תמונות. בכל כרטיס מוצגות 2-3 תמונות שמתחלפות כל כמה
-          שניות.
-        </p>
-        {!isLoading && !error && galleryPosts.length ? (
-          <p className="gallery-page__count">
-            מציגים {Math.min(visibleCount, galleryPosts.length)} מתוך {galleryPosts.length} גלריות.
-          </p>
-        ) : null}
+        <h1>גלריות תמונות</h1>
       </div>
 
       {isLoading ? <p className="gallery-page__status">טוען גלריות...</p> : null}
@@ -54,7 +45,7 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
       {!isLoading && !error ? (
         galleryPosts.length ? (
           <>
-            <div className="gallery-page__grid">
+            <div className="gallery-page__grid gallery-page__grid--full">
               {visiblePosts.map(({ post, images }) => {
                 const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
                 return (
