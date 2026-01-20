@@ -5,8 +5,20 @@ const PREVIEW_IMAGE_COUNT = 3;
 
 const addImage = (set, value) => {
   if (typeof value === "string" && value.trim()) {
-    set.add(value.trim());
+    const trimmedValue = value.trim();
+    if (trimmedValue.startsWith("data:image/svg+xml")) return;
+    set.add(trimmedValue);
   }
+};
+
+const addSrcsetImages = (set, srcset) => {
+  if (typeof srcset !== "string") return;
+  srcset.split(",").forEach((candidate) => {
+    const url = candidate.trim().split(/\s+/)[0];
+    if (url) {
+      addImage(set, url);
+    }
+  });
 };
 
 const collectImagesFromArray = (set, values) => {
@@ -28,12 +40,24 @@ const collectImagesFromArray = (set, values) => {
 
 const collectImagesFromHtml = (set, html) => {
   if (typeof html !== "string") return;
-  const imgRegex = /<img[^>]+(?:src|data-src)=["']([^"']+)["']/g;
+  const dataSrcRegex = /<img[^>]+data-src=["']([^"']+)["']/gi;
+  const srcRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+  const dataSrcsetRegex = /<img[^>]+data-srcset=["']([^"']+)["']/gi;
+  const srcsetRegex = /<img[^>]+srcset=["']([^"']+)["']/gi;
   const linkRegex =
     /<a[^>]+href=["']([^"']+\.(?:png|jpe?g|gif|webp|svg))["']/gi;
   let match;
-  while ((match = imgRegex.exec(html)) !== null) {
+  while ((match = dataSrcRegex.exec(html)) !== null) {
     addImage(set, match[1]);
+  }
+  while ((match = dataSrcsetRegex.exec(html)) !== null) {
+    addSrcsetImages(set, match[1]);
+  }
+  while ((match = srcRegex.exec(html)) !== null) {
+    addImage(set, match[1]);
+  }
+  while ((match = srcsetRegex.exec(html)) !== null) {
+    addSrcsetImages(set, match[1]);
   }
   while ((match = linkRegex.exec(html)) !== null) {
     addImage(set, match[1]);
