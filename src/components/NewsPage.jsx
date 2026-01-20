@@ -9,6 +9,10 @@ export default function NewsPage({
   isLoading,
   error,
   recentPosts = [],
+  badge = "חדשות",
+  title = "כל החדשות",
+  subtitle = "כל העדכונים במקום אחד.",
+  loadMoreLabel = "הצג עוד חדשות",
   emptyMessage = "עדיין אין חדשות להצגה.",
 }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -20,10 +24,10 @@ export default function NewsPage({
     <section className="news-page" dir="rtl">
       <header className="news-page__header">
         <div>
-          <p className="news-page__badge">חדשות</p>
-          <h1>כל החדשות</h1>
+          <p className="news-page__badge">{badge}</p>
+          <h1>{title}</h1>
         </div>
-        <p className="news-page__subtitle">כל העדכונים במקום אחד.</p>
+        <p className="news-page__subtitle">{subtitle}</p>
       </header>
       {isLoading ? (
         <p className="news-page__status">טוען פוסטים מהשרת...</p>
@@ -70,7 +74,7 @@ export default function NewsPage({
                         setVisibleCount((count) => count + LOAD_MORE_COUNT)
                       }
                     >
-                      הצג עוד חדשות
+                      {loadMoreLabel}
                     </button>
                   </div>
                 ) : null}

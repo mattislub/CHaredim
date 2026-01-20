@@ -42,3 +42,26 @@ export async function fetchPostsByCategory({
 
   return response.json();
 }
+
+export async function fetchCommunityPosts({
+  page = 1,
+  limit = 20,
+  term,
+  signal,
+} = {}) {
+  const url = new URL(`${API_BASE_URL}/communities`);
+  url.searchParams.set("page", String(page));
+  url.searchParams.set("limit", String(limit));
+  if (term) {
+    url.searchParams.set("term", term);
+  }
+
+  const response = await fetch(url.toString(), { signal });
+
+  if (!response.ok) {
+    const message = `Request failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
+  return response.json();
+}
