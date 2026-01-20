@@ -318,6 +318,34 @@ main {
   text-decoration: underline;
 }
 
+.gallery-preview {
+  gap: 1.5rem;
+}
+
+.gallery-preview__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.gallery-preview__title {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.gallery-preview__link {
+  color: #0f172a;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.gallery-preview__link:hover,
+.gallery-preview__link:focus-visible {
+  text-decoration: underline;
+}
+
 .section {
   display: grid;
   gap: 1.5rem;
