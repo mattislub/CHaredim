@@ -10,8 +10,9 @@ export default function GalleryPage({
   error,
   getPostSlug,
 }) {
-  const PAGE_SIZE = 9;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const INITIAL_VISIBLE_COUNT = 6;
+  const LOAD_MORE_COUNT = 6;
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const galleryPosts = useMemo(() => {
     if (!posts.length) return [];
 
@@ -25,7 +26,7 @@ export default function GalleryPage({
   }, [posts]);
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
   }, [galleryPosts.length]);
 
   const visiblePosts = useMemo(
@@ -76,7 +77,7 @@ export default function GalleryPage({
                         className="gallery-page__load-more"
                         type="button"
                         onClick={() =>
-                          setVisibleCount((current) => current + PAGE_SIZE)
+                          setVisibleCount((current) => current + LOAD_MORE_COUNT)
                         }
                       >
                         הצג עוד
