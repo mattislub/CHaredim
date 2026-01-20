@@ -1,31 +1,59 @@
 import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "./GalleryCard";
+import { fetchGalleryPosts } from "../api/posts";
 import { extractPostImages, isInGalleryCategory } from "../utils/gallery";
 
-export default function GalleryPage({ posts = [], isLoading, error, getPostSlug }) {
+export default function GalleryPage({ getPostSlug }) {
   const PAGE_SIZE = 9;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const galleryPosts = useMemo(() => {
-    if (!posts.length) return [];
+  const [rawPosts, setRawPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    return posts
-      .filter((post) => isInGalleryCategory(post) ?? false)
-      .map((post) => ({
-        post,
-        images: extractPostImages(post),
-      }))
-      .filter(({ images }) => images.length >= 5);
-  }, [posts]);
+  const galleryPosts = useMemo(
+    () =>
+      rawPosts
+        .filter((post) => isInGalleryCategory(post) ?? false)
+        .map((post) => ({
+          post,
+          images: extractPostImages(post),
+        }))
+        .filter(({ images }) => images.length >= 5),
+    [rawPosts]
+  );
 
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-  }, [galleryPosts.length]);
+    const controller = new AbortController();
 
-  const visiblePosts = useMemo(
-    () => galleryPosts.slice(0, visibleCount),
-    [galleryPosts, visibleCount]
-  );
-  const hasMore = visibleCount < galleryPosts.length;
+    const loadGalleries = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const data = await fetchGalleryPosts({
+          page,
+          limit: PAGE_SIZE,
+          signal: controller.signal,
+        });
+        const nextItems = Array.isArray(data?.items) ? data.items : [];
+        setRawPosts((current) => (page === 1 ? nextItems : [...current, ...nextItems]));
+        setTotalPages(Number(data?.totalPages) || 1);
+      } catch (err) {
+        if (err?.name === "AbortError") return;
+        setError(err?.message ?? "fetch_failed");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadGalleries();
+
+    return () => controller.abort();
+  }, [page]);
+
+  const hasMore = page < totalPages;
 
   return (
     <section className="gallery-page" dir="rtl">
@@ -38,12 +66,14 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
         </p>
         {!isLoading && !error && galleryPosts.length ? (
           <p className="gallery-page__count">
-            מציגים {Math.min(visibleCount, galleryPosts.length)} מתוך {galleryPosts.length} גלריות.
+            מציגים {galleryPosts.length} גלריות.
           </p>
         ) : null}
       </div>
 
-      {isLoading ? <p className="gallery-page__status">טוען גלריות...</p> : null}
+      {isLoading && !rawPosts.length ? (
+        <p className="gallery-page__status">טוען גלריות...</p>
+      ) : null}
 
       {error ? (
         <p className="gallery-page__status" role="alert">
@@ -51,11 +81,11 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
         </p>
       ) : null}
 
-      {!isLoading && !error ? (
+      {!error ? (
         galleryPosts.length ? (
           <>
             <div className="gallery-page__grid">
-              {visiblePosts.map(({ post, images }) => {
+              {galleryPosts.map(({ post, images }) => {
                 const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
                 return (
                   <GalleryCard
@@ -72,9 +102,10 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
                 <button
                   className="gallery-page__load-more"
                   type="button"
-                  onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}
+                  onClick={() => setPage((current) => current + 1)}
+                  disabled={isLoading}
                 >
-                  טען עוד
+                  {isLoading ? "טוען..." : "טען עוד"}
                 </button>
               </div>
             ) : null}
