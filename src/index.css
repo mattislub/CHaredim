@@ -224,12 +224,7 @@ main {
 }
 
 .gallery-page {
-  display: grid;
-  gap: 2rem;
-  background: #fff;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  padding: 2rem 0 3rem;
 }
 
 .gallery-page__header {
@@ -269,6 +264,11 @@ main {
 
 .gallery-page__grid--full {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.gallery-page__main {
+  display: grid;
+  gap: 1.5rem;
 }
 
 .gallery-page__actions {

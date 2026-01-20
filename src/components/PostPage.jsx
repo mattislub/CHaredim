@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatDateWithHebrew } from "../utils/date";
+import RecentPostsSidebar from "./RecentPostsSidebar";
 
 const buildParagraphs = (content, fallback) => {
   if (typeof content === "string") {
@@ -350,35 +351,7 @@ export default function PostPage({
             </div>
           </div>
 
-          <aside className="post-page__sidebar">
-            <h2 className="post-page__sidebar-title">פוסטים אחרונים</h2>
-            {recentItems.length ? (
-              <ul className="post-page__recent-list">
-                {recentItems.map((item) => (
-                  <li className="post-page__recent-item" key={item.slug}>
-                    <a href={`#/post/${item.slug}`} className="post-page__recent-link">
-                      {item.image ? (
-                        <img
-                          className="post-page__recent-image"
-                          src={item.image}
-                          alt={item.title}
-                          loading="lazy"
-                        />
-                      ) : null}
-                      <span className="post-page__recent-text">{item.title}</span>
-                    </a>
-                    {item.publishedAt ? (
-                      <span className="post-page__recent-time">
-                        {formatPostTime(item.publishedAt)}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="post-page__recent-empty">אין פוסטים אחרונים להצגה.</p>
-            )}
-          </aside>
+          <RecentPostsSidebar items={recentItems} />
         </div>
       </div>
     </section>
