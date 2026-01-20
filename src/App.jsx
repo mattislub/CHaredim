@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AdminPage from "./components/AdminPage";
 import AdminPostEditPage from "./components/AdminPostEditPage";
 import AdminPostsPage from "./components/AdminPostsPage";
-import Communities from "./components/Communities";
+import CategoryPostsSection from "./components/CategoryPostsSection";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
 import GalleryPreviewSection from "./components/GalleryPreviewSection";
@@ -16,12 +16,11 @@ import PostPage from "./components/PostPage";
 import PopularList from "./components/PopularList";
 import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
-import { fetchPosts } from "./api/posts";
+import { fetchPosts, fetchPostsByCategory } from "./api/posts";
 import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
-  historyCards as fallbackHistoryCards,
   newsCards as fallbackNewsCards,
   tickerItems as fallbackTickerItems,
 } from "./data/mockData";
@@ -59,6 +58,12 @@ export default function App() {
   const [posts, setPosts] = useState([]);
   const [isPostsLoading, setIsPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState("");
+  const [categoryPosts, setCategoryPosts] = useState({
+    communities: [],
+    history: [],
+  });
+  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+  const [categoryError, setCategoryError] = useState("");
   const [randomSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
   useEffect(() => {
@@ -89,6 +94,46 @@ export default function App() {
     };
 
     loadPosts();
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadCategoryPosts = async () => {
+      try {
+        setIsCategoryLoading(true);
+        setCategoryError("");
+        const [communitiesResponse, historyResponse] = await Promise.all([
+          fetchPostsByCategory({
+            name: "קהילות",
+            limit: 8,
+            signal: controller.signal,
+          }),
+          fetchPostsByCategory({
+            name: "היסטוריה",
+            limit: 8,
+            signal: controller.signal,
+          }),
+        ]);
+
+        setCategoryPosts({
+          communities: Array.isArray(communitiesResponse.items)
+            ? communitiesResponse.items
+            : [],
+          history: Array.isArray(historyResponse.items) ? historyResponse.items : [],
+        });
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          setCategoryError("failed");
+        }
+      } finally {
+        setIsCategoryLoading(false);
+      }
+    };
+
+    loadCategoryPosts();
 
     return () => controller.abort();
   }, []);
@@ -214,34 +259,6 @@ export default function App() {
         subtitle: "אין תקציר זמין לפוסט זה.",
       }));
 
-  const resolvedHistoryCards = useMemo(() => {
-    if (!posts.length) {
-      return shuffleArray(fallbackHistoryCards, randomSeed).map((item) => ({
-        ...item,
-        slug: slugify(item.title),
-      }));
-    }
-
-    const historyPosts = posts.filter(
-      (post) => (post.category ?? "").trim() === "היסטוריה"
-    );
-
-    if (!historyPosts.length) {
-      return [];
-    }
-
-    return [...historyPosts]
-      .sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a))
-      .slice(0, 6)
-      .map((post) => ({
-        id: post.id,
-        slug: getPostSlug(post),
-        title: post.title,
-        time: formatPostTime(post.published_at),
-        image: post.featured_image_url || fallbackImage,
-      }));
-  }, [posts, randomSeed]);
-
   const resolvedPopularPosts = posts.length
     ? shuffledPosts.slice(0, 5).map((post) => ({
         title: post.title,
@@ -267,6 +284,24 @@ export default function App() {
         image: post.featured_image_url || fallbackImage,
       }));
   }, [posts]);
+
+  const mapCategoryCards = (items) =>
+    (Array.isArray(items) ? items : []).slice(0, 10).map((post) => ({
+      id: post.id,
+      slug: getPostSlug(post),
+      title: post.title,
+      time: formatPostTime(post.published_at),
+      image: post.featured_image_url || fallbackImage,
+    }));
+
+  const resolvedCommunityCards = useMemo(
+    () => mapCategoryCards(categoryPosts.communities),
+    [categoryPosts.communities]
+  );
+  const resolvedHistoryCards = useMemo(
+    () => mapCategoryCards(categoryPosts.history),
+    [categoryPosts.history]
+  );
 
   const postHashMatch = useMemo(
     () => currentHash.match(/^#\/post\/?(.*)$/),
@@ -440,15 +475,26 @@ export default function App() {
               error={postsError}
               getPostSlug={getPostSlug}
             />
-            <NewsGrid
-              items={resolvedHistoryCards}
-              isLoading={isPostsLoading}
-              error={postsError}
+            <CategoryPostsSection
+              title="קהילות"
+              hint="חיבור לקהילה המקומית"
+              items={resolvedCommunityCards}
+              isLoading={isCategoryLoading}
+              error={categoryError}
+              variant="communities"
+              emptyMessage="עדיין אין פוסטים מקטגוריית קהילות."
+              moreLink={{ href: "#/category/קהילות", label: "עוד" }}
+            />
+            <CategoryPostsSection
               title="היסטוריה"
               hint="מהארכיון הקהילתי"
+              items={resolvedHistoryCards}
+              isLoading={isCategoryLoading}
+              error={categoryError}
+              variant="history"
               emptyMessage="עדיין אין פוסטים מקטגוריית היסטוריה."
+              moreLink={{ href: "#/category/היסטוריה", label: "עוד" }}
             />
-            <Communities />
             <OpinionColumns />
             <PopularList items={resolvedPopularPosts} />
             <ExtraContent />
