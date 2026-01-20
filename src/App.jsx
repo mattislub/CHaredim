@@ -398,6 +398,7 @@ export default function App() {
             items={resolvedNewsPageItems}
             isLoading={isPostsLoading}
             error={postsError}
+            recentPosts={resolvedRecentPosts}
           />
         ) : isGalleryView ? (
           <GalleryPage

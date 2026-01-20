@@ -1,4 +1,5 @@
 import { useState } from "react";
+import RecentPostsSidebar from "./RecentPostsSidebar";
 
 const INITIAL_VISIBLE_COUNT = 10;
 const LOAD_MORE_COUNT = 10;
@@ -7,6 +8,7 @@ export default function NewsPage({
   items,
   isLoading,
   error,
+  recentPosts = [],
   emptyMessage = "עדיין אין חדשות להצגה.",
 }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -15,7 +17,7 @@ export default function NewsPage({
   const canLoadMore = items.length > visibleItems.length;
 
   return (
-    <section className="news-page">
+    <section className="news-page" dir="rtl">
       <header className="news-page__header">
         <div>
           <p className="news-page__badge">חדשות</p>
@@ -31,48 +33,54 @@ export default function NewsPage({
           לא הצלחנו לטעון את הפוסטים כרגע. נסו שוב מאוחר יותר.
         </p>
       ) : null}
-      {!isLoading && !error && !hasItems ? (
-        <p className="news-page__status">{emptyMessage}</p>
-      ) : null}
-      {hasItems ? (
-        <>
-          <div className="news-page__list">
-            {visibleItems.map((item) => (
-              <article className="news-page__item" key={item.id ?? item.title}>
-                <img
-                  className="news-page__image"
-                  src={item.image}
-                  alt={item.title}
-                />
-                <div className="news-page__content">
-                  <div className="news-page__meta">
-                    <h2>{item.title}</h2>
-                    <p>{item.subtitle}</p>
-                    {item.time ? (
-                      <span className="news-page__time">{item.time}</span>
-                    ) : null}
-                  </div>
-                  <a className="news-page__button" href={`#/post/${item.slug}`}>
-                    לפתיחת הפוסט המלא
-                  </a>
+      {!isLoading && !error ? (
+        <div className="news-page__grid post-page__grid">
+          <div className="news-page__main post-page__main">
+            {hasItems ? (
+              <>
+                <div className="news-page__list">
+                  {visibleItems.map((item) => (
+                    <article className="news-page__item" key={item.id ?? item.title}>
+                      <img
+                        className="news-page__image"
+                        src={item.image}
+                        alt={item.title}
+                      />
+                      <div className="news-page__content">
+                        <div className="news-page__meta">
+                          <h2>{item.title}</h2>
+                          <p>{item.subtitle}</p>
+                          {item.time ? (
+                            <span className="news-page__time">{item.time}</span>
+                          ) : null}
+                        </div>
+                        <a className="news-page__button" href={`#/post/${item.slug}`}>
+                          לפתיחת הפוסט המלא
+                        </a>
+                      </div>
+                    </article>
+                  ))}
                 </div>
-              </article>
-            ))}
+                {canLoadMore ? (
+                  <div className="news-page__more">
+                    <button
+                      type="button"
+                      className="news-page__more-button"
+                      onClick={() =>
+                        setVisibleCount((count) => count + LOAD_MORE_COUNT)
+                      }
+                    >
+                      הצג עוד חדשות
+                    </button>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <p className="news-page__status">{emptyMessage}</p>
+            )}
           </div>
-          {canLoadMore ? (
-            <div className="news-page__more">
-              <button
-                type="button"
-                className="news-page__more-button"
-                onClick={() =>
-                  setVisibleCount((count) => count + LOAD_MORE_COUNT)
-                }
-              >
-                הצג עוד חדשות
-              </button>
-            </div>
-          ) : null}
-        </>
+          <RecentPostsSidebar items={recentPosts} />
+        </div>
       ) : null}
     </section>
   );
