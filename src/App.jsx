@@ -5,6 +5,7 @@ import AdminPostsPage from "./components/AdminPostsPage";
 import Communities from "./components/Communities";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
+import GalleryPreviewSection from "./components/GalleryPreviewSection";
 import GalleryPage from "./components/GalleryPage";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -402,6 +403,12 @@ export default function App() {
               items={resolvedNewsCards}
               isLoading={isPostsLoading}
               error={postsError}
+            />
+            <GalleryPreviewSection
+              posts={posts}
+              isLoading={isPostsLoading}
+              error={postsError}
+              getPostSlug={getPostSlug}
             />
             <NewsGrid
               items={resolvedHistoryCards}
