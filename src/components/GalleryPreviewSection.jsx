@@ -32,8 +32,7 @@ export default function GalleryPreviewSection({
       <div className="gallery-preview__header">
         <div className="gallery-preview__title">
           <p className="gallery-page__badge">גלריות</p>
-          <h2>גלריות אחרונות מהקהילות</h2>
-          <p className="section__hint">3 הפוסטים האחרונים מקטגוריית גלריות.</p>
+          <h2>גלריות אחרונות</h2>
         </div>
         <a className="gallery-preview__link" href="#/galleries">
           לכל הגלריות
