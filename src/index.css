@@ -88,6 +88,55 @@ main {
   padding: 2rem 0 3rem;
 }
 
+.home-section {
+  border-radius: 24px;
+  padding: 1.5rem;
+  background: #ffffff;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+}
+
+.home-section--hero {
+  background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
+}
+
+.home-section--ticker {
+  padding: 1rem;
+  background: linear-gradient(135deg, #e0f2fe 0%, #fff7ed 100%);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.home-section--news {
+  background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+}
+
+.home-section--gallery {
+  background: linear-gradient(135deg, #ecfeff 0%, #f0fdf4 100%);
+}
+
+.home-section--communities {
+  background: linear-gradient(135deg, #fdf2f8 0%, #f5f3ff 100%);
+}
+
+.home-section--history {
+  background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
+}
+
+.home-section--opinion {
+  background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+}
+
+.home-section--popular {
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+}
+
+.home-section--extra {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfccb 100%);
+}
+
+.home-section--sponsored {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
 .hero {
   display: grid;
   grid-template-columns: 2.2fr 1fr;

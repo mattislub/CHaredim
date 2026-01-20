@@ -504,44 +504,64 @@ export default function App() {
           />
         ) : (
           <>
-            <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />
-            <Ticker items={resolvedTickerItems} />
-            <NewsGrid
-              items={resolvedNewsCards}
-              isLoading={isPostsLoading}
-              error={postsError}
-              moreLink={{ href: "#/news", label: "חדשות נוספות" }}
-            />
-            <GalleryPreviewSection
-              posts={posts}
-              isLoading={isPostsLoading}
-              error={postsError}
-              getPostSlug={getPostSlug}
-            />
-            <CategoryPostsSection
-              title="קהילות"
-              hint="חיבור לקהילה המקומית"
-              items={resolvedCommunityCards}
-              isLoading={isCategoryLoading}
-              error={categoryError}
-              variant="communities"
-              emptyMessage="עדיין אין פוסטים מקטגוריית קהילות."
-              moreLink={{ href: "#/category/קהילות", label: "עוד" }}
-            />
-            <CategoryPostsSection
-              title="היסטוריה"
-              hint="מהארכיון הקהילתי"
-              items={resolvedHistoryCards}
-              isLoading={isCategoryLoading}
-              error={categoryError}
-              variant="history"
-              emptyMessage="עדיין אין פוסטים מקטגוריית היסטוריה."
-              moreLink={{ href: "#/category/היסטוריה", label: "עוד" }}
-            />
-            <OpinionColumns />
-            <PopularList items={resolvedPopularPosts} />
-            <ExtraContent />
-            <SponsoredArea />
+            <section className="home-section home-section--hero">
+              <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />
+            </section>
+            <section className="home-section home-section--ticker">
+              <Ticker items={resolvedTickerItems} />
+            </section>
+            <section className="home-section home-section--news">
+              <NewsGrid
+                items={resolvedNewsCards}
+                isLoading={isPostsLoading}
+                error={postsError}
+                moreLink={{ href: "#/news", label: "חדשות נוספות" }}
+              />
+            </section>
+            <section className="home-section home-section--gallery">
+              <GalleryPreviewSection
+                posts={posts}
+                isLoading={isPostsLoading}
+                error={postsError}
+                getPostSlug={getPostSlug}
+              />
+            </section>
+            <section className="home-section home-section--communities">
+              <CategoryPostsSection
+                title="קהילות"
+                hint="חיבור לקהילה המקומית"
+                items={resolvedCommunityCards}
+                isLoading={isCategoryLoading}
+                error={categoryError}
+                variant="communities"
+                emptyMessage="עדיין אין פוסטים מקטגוריית קהילות."
+                moreLink={{ href: "#/category/קהילות", label: "עוד" }}
+              />
+            </section>
+            <section className="home-section home-section--history">
+              <CategoryPostsSection
+                title="היסטוריה"
+                hint="מהארכיון הקהילתי"
+                items={resolvedHistoryCards}
+                isLoading={isCategoryLoading}
+                error={categoryError}
+                variant="history"
+                emptyMessage="עדיין אין פוסטים מקטגוריית היסטוריה."
+                moreLink={{ href: "#/category/היסטוריה", label: "עוד" }}
+              />
+            </section>
+            <section className="home-section home-section--opinion">
+              <OpinionColumns />
+            </section>
+            <section className="home-section home-section--popular">
+              <PopularList items={resolvedPopularPosts} />
+            </section>
+            <section className="home-section home-section--extra">
+              <ExtraContent />
+            </section>
+            <section className="home-section home-section--sponsored">
+              <SponsoredArea />
+            </section>
           </>
         )}
       </main>

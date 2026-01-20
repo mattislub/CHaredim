@@ -1,4 +1,4 @@
-import logo from "../assets/charedim-logo.png";
+import logo from "../assets/charedim-logo.svg";
 
 const navItems = [
   { label: "דף הבית", href: "#/" },
