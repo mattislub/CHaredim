@@ -134,7 +134,6 @@ export default function AdminPostEditPage({
   const previewDescription = imagePreview
     ? "תצוגה מקדימה של התמונה שהוזנה."
     : "טרם הועלתה תמונה לפוסט.";
-  const placeholderSelection = "טקסט";
   const steps = [
     { id: "title", label: "כותרת הפוסט" },
     { id: "subtitle", label: "כותרת משנה" },
@@ -144,23 +143,116 @@ export default function AdminPostEditPage({
     { id: "details", label: "פרטים נוספים" },
   ];
 
-  const updateContentWithSelection = (prefix, suffix = "") => {
+  const getSelectionDetails = () => {
     const textarea = contentRef.current;
     if (!textarea) {
-      return;
+      return null;
     }
     const start = textarea.selectionStart ?? 0;
     const end = textarea.selectionEnd ?? 0;
-    const selectedText = content.slice(start, end) || placeholderSelection;
-    const nextValue = `${content.slice(0, start)}${prefix}${selectedText}${suffix}${content.slice(end)}`;
+    const selectedText = content.slice(start, end);
+    return { textarea, start, end, selectedText };
+  };
+
+  const insertTextAtCursor = (insertion) => {
+    const selection = getSelectionDetails();
+    if (!selection) {
+      return;
+    }
+    const { textarea, start, end } = selection;
+    const nextValue = `${content.slice(0, start)}${insertion}${content.slice(end)}`;
     setContent(nextValue);
 
     requestAnimationFrame(() => {
       textarea.focus();
-      const selectionStart = start + prefix.length;
-      const selectionEnd = selectionStart + selectedText.length;
-      textarea.setSelectionRange(selectionStart, selectionEnd);
+      const cursor = start + insertion.length;
+      textarea.setSelectionRange(cursor, cursor);
     });
+  };
+
+  const insertBlock = (text) => {
+    const selection = getSelectionDetails();
+    if (!selection) {
+      return;
+    }
+    const { textarea, start, end } = selection;
+    const needsPrefix = start > 0 && content[start - 1] !== "\n";
+    const needsSuffix = content[end] && content[end] !== "\n";
+    const prefix = needsPrefix ? "\n" : "";
+    const suffix = needsSuffix ? "\n" : "";
+    const insertion = `${prefix}${text}${suffix}`;
+    const nextValue = `${content.slice(0, start)}${insertion}${content.slice(end)}`;
+    setContent(nextValue);
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      const cursor = start + prefix.length + text.length;
+      textarea.setSelectionRange(cursor, cursor);
+    });
+  };
+
+  const insertSectionTitle = () => {
+    const selection = getSelectionDetails();
+    const title = selection?.selectedText?.trim() || "כותרת ביניים";
+    insertBlock(`${title}\n`);
+  };
+
+  const insertEmphasis = () => {
+    const selection = getSelectionDetails();
+    const emphasis = selection?.selectedText?.trim() || "טקסט מודגש";
+    insertBlock(`דגש: ${emphasis}`);
+  };
+
+  const insertQuote = () => {
+    const selection = getSelectionDetails();
+    const quote = selection?.selectedText?.trim() || "ציטוט חשוב";
+    insertBlock(`״${quote}״`);
+  };
+
+  const insertBulletList = () => {
+    const selection = getSelectionDetails();
+    if (!selection) {
+      return;
+    }
+    const lines = selection.selectedText
+      ? selection.selectedText.split("\n")
+      : ["פריט"];
+    const formatted = lines
+      .map((line) => `• ${line || "פריט"}`)
+      .join("\n");
+    insertBlock(formatted);
+  };
+
+  const insertNumberedList = () => {
+    const selection = getSelectionDetails();
+    if (!selection) {
+      return;
+    }
+    const lines = selection.selectedText
+      ? selection.selectedText.split("\n")
+      : ["פריט"];
+    const formatted = lines
+      .map((line, index) => `${index + 1}. ${line || "פריט"}`)
+      .join("\n");
+    insertBlock(formatted);
+  };
+
+  const insertDivider = () => {
+    insertBlock("⸻⸻⸻");
+  };
+
+  const handleInsertLink = () => {
+    const url = window.prompt("הדביקו קישור");
+    if (!url) {
+      return;
+    }
+    const cleanedUrl = url.trim();
+    if (!cleanedUrl) {
+      return;
+    }
+    const label = window.prompt("כותרת לקישור (לא חובה)")?.trim();
+    const insertion = label ? `${label}: ${cleanedUrl}` : cleanedUrl;
+    insertBlock(insertion);
   };
 
   const handleInsertYoutube = () => {
@@ -172,22 +264,75 @@ export default function AdminPostEditPage({
     if (!cleanedUrl) {
       return;
     }
-    const textarea = contentRef.current;
-    if (!textarea) {
-      return;
-    }
-    const start = textarea.selectionStart ?? 0;
-    const end = textarea.selectionEnd ?? 0;
-    const insertion = `[youtube]${cleanedUrl}[/youtube]`;
-    const nextValue = `${content.slice(0, start)}${insertion}${content.slice(end)}`;
-    setContent(nextValue);
-
-    requestAnimationFrame(() => {
-      textarea.focus();
-      const cursor = start + insertion.length;
-      textarea.setSelectionRange(cursor, cursor);
-    });
+    insertBlock(`קישור יוטיוב: ${cleanedUrl}`);
   };
+
+  const buildPreviewBlocks = (value) => {
+    if (!value) return [];
+    const lines = value.split("\n");
+    const blocks = [];
+    let bulletItems = [];
+    let numberedItems = [];
+
+    const flushLists = () => {
+      if (bulletItems.length) {
+        blocks.push({ type: "bullet", items: bulletItems });
+        bulletItems = [];
+      }
+      if (numberedItems.length) {
+        blocks.push({ type: "numbered", items: numberedItems });
+        numberedItems = [];
+      }
+    };
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        flushLists();
+        return;
+      }
+      if (trimmed.startsWith("• ")) {
+        bulletItems.push(trimmed.replace(/^•\s+/, ""));
+        return;
+      }
+      if (/^\d+\.\s+/.test(trimmed)) {
+        numberedItems.push(trimmed.replace(/^\d+\.\s+/, ""));
+        return;
+      }
+      flushLists();
+      if (trimmed === "⸻⸻⸻") {
+        blocks.push({ type: "divider" });
+        return;
+      }
+      if (trimmed.startsWith("דגש:")) {
+        blocks.push({
+          type: "emphasis",
+          text: trimmed.replace(/^דגש:\s*/, ""),
+        });
+        return;
+      }
+      if (trimmed.startsWith("קישור יוטיוב:")) {
+        blocks.push({
+          type: "youtube",
+          text: trimmed.replace(/^קישור יוטיוב:\s*/, ""),
+        });
+        return;
+      }
+      if (/^https?:\/\//.test(trimmed)) {
+        blocks.push({ type: "link", text: trimmed });
+        return;
+      }
+      blocks.push({ type: "paragraph", text: trimmed });
+    });
+
+    flushLists();
+    return blocks;
+  };
+
+  const contentPreviewBlocks = useMemo(
+    () => buildPreviewBlocks(content),
+    [content]
+  );
 
   const stepContent = () => {
     switch (steps[currentStep]?.id) {
@@ -397,54 +542,155 @@ export default function AdminPostEditPage({
               role="toolbar"
               aria-label="כלי עיצוב תוכן"
             >
-              <button
-                className="admin-post-edit__tool"
-                type="button"
-                onClick={() => updateContentWithSelection("[big]", "[/big]")}
-              >
-                A+
-              </button>
-              <button
-                className="admin-post-edit__tool"
-                type="button"
-                onClick={() => updateContentWithSelection("[small]", "[/small]")}
-              >
-                A-
-              </button>
-              <button
-                className="admin-post-edit__tool"
-                type="button"
-                onClick={() => updateContentWithSelection("[b]", "[/b]")}
-              >
-                דגש
-              </button>
-              <button
-                className="admin-post-edit__tool"
-                type="button"
-                onClick={() => updateContentWithSelection("[u]", "[/u]")}
-              >
-                קו תחתון
-              </button>
-              <button
-                className="admin-post-edit__tool"
-                type="button"
-                onClick={handleInsertYoutube}
-              >
-                יוטיוב
-              </button>
+              <div className="admin-post-edit__toolbar-group">
+                <span className="admin-post-edit__toolbar-label">מבנה</span>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={() => insertTextAtCursor("\n\n")}
+                >
+                  פסקה חדשה
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={insertSectionTitle}
+                >
+                  כותרת ביניים
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={insertEmphasis}
+                >
+                  הדגשה
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={insertQuote}
+                >
+                  ציטוט
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={insertDivider}
+                >
+                  הפרדה
+                </button>
+              </div>
+              <div className="admin-post-edit__toolbar-group">
+                <span className="admin-post-edit__toolbar-label">רשימות</span>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={insertBulletList}
+                >
+                  רשימת נקודות
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={insertNumberedList}
+                >
+                  רשימה ממוספרת
+                </button>
+              </div>
+              <div className="admin-post-edit__toolbar-group">
+                <span className="admin-post-edit__toolbar-label">
+                  קישורים ומדיה
+                </span>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
+                  onClick={handleInsertLink}
+                >
+                  קישור
+                </button>
+                <button
+                  className="admin-post-edit__tool admin-post-edit__tool--accent"
+                  type="button"
+                  onClick={handleInsertYoutube}
+                >
+                  יוטיוב
+                </button>
+              </div>
             </div>
             <textarea
               name="content"
-              rows={10}
+              rows={14}
               placeholder="הקלידו כאן את תוכן הפוסט המלא"
+              className="admin-post-edit__textarea"
               ref={contentRef}
               value={content}
               onChange={(event) => setContent(event.target.value)}
             />
             <span className="admin-post-edit__hint">
-              ניתן להוסיף עיצוב באמצעות הסרגל: הגדלה, הקטנה, דגש, קו תחתון או
-              שילוב וידאו מיוטיוב.
+              הסרגל מוסיף פסקאות, כותרות, רשימות, ציטוטים וקישורים בצורה נקייה
+              לקריאה - בלי קטעי קוד בטקסט העריכה.
             </span>
+            <div className="admin-post-edit__content-preview">
+              <p className="admin-post-edit__content-preview-title">
+                תצוגה מקדימה חיה
+              </p>
+              {contentPreviewBlocks.length ? (
+                contentPreviewBlocks.map((block, index) => {
+                  if (block.type === "bullet") {
+                    return (
+                      <ul key={`bullet-${index}`}>
+                        {block.items.map((item, itemIndex) => (
+                          <li key={`bullet-item-${itemIndex}`}>{item}</li>
+                        ))}
+                      </ul>
+                    );
+                  }
+                  if (block.type === "numbered") {
+                    return (
+                      <ol key={`numbered-${index}`}>
+                        {block.items.map((item, itemIndex) => (
+                          <li key={`numbered-item-${itemIndex}`}>{item}</li>
+                        ))}
+                      </ol>
+                    );
+                  }
+                  if (block.type === "divider") {
+                    return <hr key={`divider-${index}`} />;
+                  }
+                  if (block.type === "emphasis") {
+                    return (
+                      <p key={`emphasis-${index}`}>
+                        <strong>{block.text}</strong>
+                      </p>
+                    );
+                  }
+                  if (block.type === "youtube") {
+                    return (
+                      <p key={`youtube-${index}`}>
+                        <span>קישור יוטיוב: </span>
+                        <a href={block.text} target="_blank" rel="noreferrer">
+                          {block.text}
+                        </a>
+                      </p>
+                    );
+                  }
+                  if (block.type === "link") {
+                    return (
+                      <p key={`link-${index}`}>
+                        <a href={block.text} target="_blank" rel="noreferrer">
+                          {block.text}
+                        </a>
+                      </p>
+                    );
+                  }
+                  return <p key={`paragraph-${index}`}>{block.text}</p>;
+                })
+              ) : (
+                <p className="admin-post-edit__content-preview-empty">
+                  התצוגה המקדימה תופיע כאן בזמן עריכה.
+                </p>
+              )}
+            </div>
           </label>
         );
       case "details":
@@ -751,54 +997,155 @@ export default function AdminPostEditPage({
             <label className="admin-post-edit__field">
               <span>תוכן מלא</span>
               <div className="admin-post-edit__toolbar" role="toolbar" aria-label="כלי עיצוב תוכן">
-                <button
-                  className="admin-post-edit__tool"
-                  type="button"
-                  onClick={() => updateContentWithSelection("[big]", "[/big]")}
-                >
-                  A+
-                </button>
-                <button
-                  className="admin-post-edit__tool"
-                  type="button"
-                  onClick={() => updateContentWithSelection("[small]", "[/small]")}
-                >
-                  A-
-                </button>
-                <button
-                  className="admin-post-edit__tool"
-                  type="button"
-                  onClick={() => updateContentWithSelection("[b]", "[/b]")}
-                >
-                  דגש
-                </button>
-                <button
-                  className="admin-post-edit__tool"
-                  type="button"
-                  onClick={() => updateContentWithSelection("[u]", "[/u]")}
-                >
-                  קו תחתון
-                </button>
-                <button
-                  className="admin-post-edit__tool"
-                  type="button"
-                  onClick={handleInsertYoutube}
-                >
-                  יוטיוב
-                </button>
+                <div className="admin-post-edit__toolbar-group">
+                  <span className="admin-post-edit__toolbar-label">מבנה</span>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={() => insertTextAtCursor("\n\n")}
+                  >
+                    פסקה חדשה
+                  </button>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={insertSectionTitle}
+                  >
+                    כותרת ביניים
+                  </button>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={insertEmphasis}
+                  >
+                    הדגשה
+                  </button>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={insertQuote}
+                  >
+                    ציטוט
+                  </button>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={insertDivider}
+                  >
+                    הפרדה
+                  </button>
+                </div>
+                <div className="admin-post-edit__toolbar-group">
+                  <span className="admin-post-edit__toolbar-label">רשימות</span>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={insertBulletList}
+                  >
+                    רשימת נקודות
+                  </button>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={insertNumberedList}
+                  >
+                    רשימה ממוספרת
+                  </button>
+                </div>
+                <div className="admin-post-edit__toolbar-group">
+                  <span className="admin-post-edit__toolbar-label">
+                    קישורים ומדיה
+                  </span>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
+                    onClick={handleInsertLink}
+                  >
+                    קישור
+                  </button>
+                  <button
+                    className="admin-post-edit__tool admin-post-edit__tool--accent"
+                    type="button"
+                    onClick={handleInsertYoutube}
+                  >
+                    יוטיוב
+                  </button>
+                </div>
               </div>
               <textarea
                 name="content"
-                rows={10}
+                rows={14}
                 placeholder="הקלידו כאן את תוכן הפוסט המלא"
+                className="admin-post-edit__textarea"
                 ref={contentRef}
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
               />
               <span className="admin-post-edit__hint">
-                ניתן להוסיף עיצוב באמצעות הסרגל: הגדלה, הקטנה, דגש, קו תחתון או
-                שילוב וידאו מיוטיוב.
+                הסרגל מוסיף פסקאות, כותרות, רשימות, ציטוטים וקישורים בצורה נקייה
+                לקריאה - בלי קטעי קוד בטקסט העריכה.
               </span>
+              <div className="admin-post-edit__content-preview">
+                <p className="admin-post-edit__content-preview-title">
+                  תצוגה מקדימה חיה
+                </p>
+                {contentPreviewBlocks.length ? (
+                  contentPreviewBlocks.map((block, index) => {
+                    if (block.type === "bullet") {
+                      return (
+                        <ul key={`bullet-${index}`}>
+                          {block.items.map((item, itemIndex) => (
+                            <li key={`bullet-item-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
+                      );
+                    }
+                    if (block.type === "numbered") {
+                      return (
+                        <ol key={`numbered-${index}`}>
+                          {block.items.map((item, itemIndex) => (
+                            <li key={`numbered-item-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ol>
+                      );
+                    }
+                    if (block.type === "divider") {
+                      return <hr key={`divider-${index}`} />;
+                    }
+                    if (block.type === "emphasis") {
+                      return (
+                        <p key={`emphasis-${index}`}>
+                          <strong>{block.text}</strong>
+                        </p>
+                      );
+                    }
+                    if (block.type === "youtube") {
+                      return (
+                        <p key={`youtube-${index}`}>
+                          <span>קישור יוטיוב: </span>
+                          <a href={block.text} target="_blank" rel="noreferrer">
+                            {block.text}
+                          </a>
+                        </p>
+                      );
+                    }
+                    if (block.type === "link") {
+                      return (
+                        <p key={`link-${index}`}>
+                          <a href={block.text} target="_blank" rel="noreferrer">
+                            {block.text}
+                          </a>
+                        </p>
+                      );
+                    }
+                    return <p key={`paragraph-${index}`}>{block.text}</p>;
+                  })
+                ) : (
+                  <p className="admin-post-edit__content-preview-empty">
+                    התצוגה המקדימה תופיע כאן בזמן עריכה.
+                  </p>
+                )}
+              </div>
             </label>
           </div>
 
