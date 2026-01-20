@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const IMAGE_ROTATION_INTERVAL = 4000;
 const PREVIEW_IMAGE_COUNT = 3;
+const GALLERIES_PER_PAGE = 9;
 
 const addImage = (set, value) => {
   if (typeof value === "string" && value.trim()) {
@@ -152,6 +153,19 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
       .filter(({ images }) => images.length >= 5);
   }, [posts]);
 
+  const [visibleCount, setVisibleCount] = useState(GALLERIES_PER_PAGE);
+
+  useEffect(() => {
+    setVisibleCount(GALLERIES_PER_PAGE);
+  }, [galleryPosts.length]);
+
+  const visiblePosts = useMemo(
+    () => galleryPosts.slice(0, visibleCount),
+    [galleryPosts, visibleCount]
+  );
+
+  const hasMore = visibleCount < galleryPosts.length;
+
   return (
     <section className="gallery-page" dir="rtl">
       <div className="gallery-page__header">
@@ -173,19 +187,38 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
 
       {!isLoading && !error ? (
         galleryPosts.length ? (
-          <div className="gallery-page__grid">
-            {galleryPosts.map(({ post, images }) => {
-              const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
-              return (
-                <GalleryCard
-                  key={slug || post.id}
-                  post={post}
-                  images={images}
-                  slug={encodeURIComponent(slug)}
-                />
-              );
-            })}
-          </div>
+          <>
+            <div className="gallery-page__grid">
+              {visiblePosts.map(({ post, images }) => {
+                const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
+                return (
+                  <GalleryCard
+                    key={slug || post.id}
+                    post={post}
+                    images={images}
+                    slug={encodeURIComponent(slug)}
+                  />
+                );
+              })}
+            </div>
+            <div className="gallery-page__pagination">
+              <p className="gallery-page__count">
+                מוצגות {Math.min(visibleCount, galleryPosts.length)} מתוך{" "}
+                {galleryPosts.length} גלריות
+              </p>
+              {hasMore ? (
+                <button
+                  className="gallery-page__button"
+                  type="button"
+                  onClick={() =>
+                    setVisibleCount((prev) => Math.min(prev + GALLERIES_PER_PAGE, galleryPosts.length))
+                  }
+                >
+                  טען עוד גלריות
+                </button>
+              ) : null}
+            </div>
+          </>
         ) : (
           <p className="gallery-page__empty">
             עדיין אין פוסטים בקטגוריית גלריות עם 5 תמונות ומעלה להצגה.
