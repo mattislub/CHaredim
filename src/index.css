@@ -262,6 +262,33 @@ main {
   gap: 1.5rem;
 }
 
+.gallery-page__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.gallery-page__load-more {
+  border: none;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.75rem 1.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.gallery-page__load-more:hover,
+.gallery-page__load-more:focus-visible {
+  transform: translateY(-1px);
+}
+
+.gallery-page__load-more:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .gallery-card {
   background: #f8fafc;
   border-radius: 18px;

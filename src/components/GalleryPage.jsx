@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { fetchGalleryPosts } from "../api/posts";
 
 const IMAGE_ROTATION_INTERVAL = 4000;
 const PREVIEW_IMAGE_COUNT = 3;
@@ -139,12 +140,79 @@ const GalleryCard = ({ post, images, slug }) => {
   );
 };
 
-export default function GalleryPage({ posts = [], isLoading, error, getPostSlug }) {
+const PAGE_LIMIT = 20;
+
+export default function GalleryPage({ getPostSlug }) {
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState("");
+
+  const updateGalleryState = useCallback((data, shouldAppend) => {
+    const items = Array.isArray(data?.items) ? data.items : [];
+    setPosts((prev) => (shouldAppend ? [...prev, ...items] : items));
+    setPage(data?.page ?? 1);
+    setTotalPages(data?.totalPages ?? 1);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadGalleries = async () => {
+      try {
+        setIsLoading(true);
+        setError("");
+        const data = await fetchGalleryPosts({
+          page: 1,
+          limit: PAGE_LIMIT,
+          signal: controller.signal,
+        });
+        updateGalleryState(data, false);
+      } catch (loadError) {
+        if (loadError?.name !== "AbortError") {
+          setError("failed");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadGalleries();
+
+    return () => controller.abort();
+  }, [updateGalleryState]);
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || page >= totalPages) return;
+    const nextPage = page + 1;
+    const controller = new AbortController();
+
+    try {
+      setIsLoadingMore(true);
+      setError("");
+      const data = await fetchGalleryPosts({
+        page: nextPage,
+        limit: PAGE_LIMIT,
+        signal: controller.signal,
+      });
+      updateGalleryState(data, true);
+    } catch (loadError) {
+      if (loadError?.name !== "AbortError") {
+        setError("failed");
+      }
+    } finally {
+      setIsLoadingMore(false);
+      controller.abort();
+    }
+  };
+
   const galleryPosts = useMemo(() => {
     if (!posts.length) return [];
 
     return posts
-      .filter((post) => isInGalleryCategory(post) ?? false)
+      .filter((post) => isInGalleryCategory(post) ?? true)
       .map((post) => ({
         post,
         images: extractPostImages(post),
@@ -173,19 +241,35 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
 
       {!isLoading && !error ? (
         galleryPosts.length ? (
-          <div className="gallery-page__grid">
-            {galleryPosts.map(({ post, images }) => {
-              const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
-              return (
-                <GalleryCard
-                  key={slug || post.id}
-                  post={post}
-                  images={images}
-                  slug={encodeURIComponent(slug)}
-                />
-              );
-            })}
-          </div>
+          <>
+            <div className="gallery-page__grid">
+              {galleryPosts.map(({ post, images }) => {
+                const slug =
+                  post.slug ||
+                  (getPostSlug ? getPostSlug(post) : String(post.id ?? ""));
+                return (
+                  <GalleryCard
+                    key={slug || post.id}
+                    post={post}
+                    images={images}
+                    slug={encodeURIComponent(slug)}
+                  />
+                );
+              })}
+            </div>
+            {page < totalPages ? (
+              <div className="gallery-page__actions">
+                <button
+                  className="gallery-page__load-more"
+                  type="button"
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? "טוען עוד גלריות..." : "טען עוד גלריות"}
+                </button>
+              </div>
+            ) : null}
+          </>
         ) : (
           <p className="gallery-page__empty">
             עדיין אין פוסטים בקטגוריית גלריות עם 5 תמונות ומעלה להצגה.
