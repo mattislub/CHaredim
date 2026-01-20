@@ -50,7 +50,7 @@ const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
   if (!termIds.length) return [];
 
   const result = await query(
-    `SELECT id, slug, title, featured_image_url
+    `SELECT id, slug, title, featured_image_url, published_at
      FROM (
        SELECT DISTINCT ON (p.id)
          p.id, p.slug, p.title, p.published_at, p.featured_image_url
@@ -67,7 +67,7 @@ const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
     [postId, taxonomy, termIds, RELATED_LIMIT]
   );
 
-  return result.rows;
+  return result.rows.map(({ published_at, ...rest }) => rest);
 };
 
 const attachRelatedPosts = async (post) => {
