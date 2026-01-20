@@ -65,3 +65,17 @@ export async function fetchCommunityPosts({
 
   return response.json();
 }
+
+export async function fetchCommunityHighlights({ limit = 8, signal } = {}) {
+  const url = new URL(`${API_BASE_URL}/posts/communities`);
+  url.searchParams.set("limit", String(limit));
+
+  const response = await fetch(url.toString(), { signal });
+
+  if (!response.ok) {
+    const message = `Request failed with status ${response.status}`;
+    throw new Error(message);
+  }
+
+  return response.json();
+}

@@ -5,6 +5,25 @@ const router = Router();
 
 const MAX_LIMIT = 100;
 const RELATED_LIMIT = 6;
+const COMMUNITY_GENERAL_CATEGORIES = [
+  "Uncategorized",
+  "חדשות",
+  "בארץ",
+  "וידאו",
+  "גלריות",
+  "טורי דעה",
+  "כלכלה",
+  "פוליטיקה",
+  "משפטי",
+  "היסטוריה",
+  "העולם היהודי",
+  "מקומי",
+  "דיור",
+  "הציבור הליטאי",
+  "עדות המזרח",
+  "בחצרות האדמורי\"ם",
+  "בנלאומי",
+];
 
 const POST_WITH_TERMS_SELECT = `
   SELECT
@@ -183,6 +202,39 @@ router.get("/posts/by-category", async (req, res, next) => {
 
     return res.json({
       category: filterValue,
+      limit,
+      items: result.rows,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.get("/posts/communities", async (req, res, next) => {
+  try {
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 8, 1),
+      MAX_LIMIT
+    );
+
+    const filterValues = [COMMUNITY_GENERAL_CATEGORIES];
+    const result = await query(
+      `${POST_WITH_TERMS_SELECT}
+       INNER JOIN post_terms ptc ON ptc.post_id = p.id
+       INNER JOIN terms tc ON tc.id = ptc.term_id
+       WHERE tc.taxonomy = 'category'
+         AND tc.name <> ALL($1::text[])
+       GROUP BY p.id
+       ORDER BY p.published_at DESC NULLS LAST, p.id DESC
+       LIMIT $2`,
+      [...filterValues, limit]
+    );
+
+    if (process.env.NODE_ENV === "production") {
+      res.set("Cache-Control", "public, max-age=30");
+    }
+
+    return res.json({
       limit,
       items: result.rows,
     });
