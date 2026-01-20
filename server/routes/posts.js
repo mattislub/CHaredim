@@ -149,7 +149,7 @@ router.get("/posts", async (req, res, next) => {
   }
 });
 
-router.get("/galleries", async (req, res, next) => {
+const handleGalleryPosts = async (req, res, next) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(
@@ -200,7 +200,10 @@ router.get("/galleries", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+};
+
+router.get("/posts/galleries", handleGalleryPosts);
+router.get("/galleries", handleGalleryPosts);
 
 router.get("/posts/by-wp/:wp_id", async (req, res, next) => {
   try {
