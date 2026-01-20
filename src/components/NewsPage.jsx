@@ -1,0 +1,79 @@
+import { useState } from "react";
+
+const INITIAL_VISIBLE_COUNT = 10;
+const LOAD_MORE_COUNT = 10;
+
+export default function NewsPage({
+  items,
+  isLoading,
+  error,
+  emptyMessage = "עדיין אין חדשות להצגה.",
+}) {
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
+  const visibleItems = items.slice(0, visibleCount);
+  const hasItems = visibleItems.length > 0;
+  const canLoadMore = items.length > visibleItems.length;
+
+  return (
+    <section className="news-page">
+      <header className="news-page__header">
+        <div>
+          <p className="news-page__badge">חדשות</p>
+          <h1>כל החדשות</h1>
+        </div>
+        <p className="news-page__subtitle">כל העדכונים במקום אחד.</p>
+      </header>
+      {isLoading ? (
+        <p className="news-page__status">טוען פוסטים מהשרת...</p>
+      ) : null}
+      {error ? (
+        <p className="news-page__status news-page__status--error" role="alert">
+          לא הצלחנו לטעון את הפוסטים כרגע. נסו שוב מאוחר יותר.
+        </p>
+      ) : null}
+      {!isLoading && !error && !hasItems ? (
+        <p className="news-page__status">{emptyMessage}</p>
+      ) : null}
+      {hasItems ? (
+        <>
+          <div className="news-page__list">
+            {visibleItems.map((item) => (
+              <article className="news-page__item" key={item.id ?? item.title}>
+                <img
+                  className="news-page__image"
+                  src={item.image}
+                  alt={item.title}
+                />
+                <div className="news-page__content">
+                  <div className="news-page__meta">
+                    <h2>{item.title}</h2>
+                    <p>{item.subtitle}</p>
+                    {item.time ? (
+                      <span className="news-page__time">{item.time}</span>
+                    ) : null}
+                  </div>
+                  <a className="news-page__button" href={`#/post/${item.slug}`}>
+                    לפתיחת הפוסט המלא
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+          {canLoadMore ? (
+            <div className="news-page__more">
+              <button
+                type="button"
+                className="news-page__more-button"
+                onClick={() =>
+                  setVisibleCount((count) => count + LOAD_MORE_COUNT)
+                }
+              >
+                הצג עוד חדשות
+              </button>
+            </div>
+          ) : null}
+        </>
+      ) : null}
+    </section>
+  );
+}

@@ -10,6 +10,7 @@ import GalleryPage from "./components/GalleryPage";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import NewsGrid from "./components/NewsGrid";
+import NewsPage from "./components/NewsPage";
 import OpinionColumns from "./components/OpinionColumns";
 import PostPage from "./components/PostPage";
 import PopularList from "./components/PopularList";
@@ -76,7 +77,7 @@ export default function App() {
       try {
         setIsPostsLoading(true);
         setPostsError("");
-        const data = await fetchPosts({ limit: 12, signal: controller.signal });
+        const data = await fetchPosts({ limit: 100, signal: controller.signal });
         setPosts(Array.isArray(data.items) ? data.items : []);
       } catch (error) {
         if (error?.name !== "AbortError") {
@@ -196,6 +197,23 @@ export default function App() {
         slug: slugify(item.title),
       }));
 
+  const resolvedNewsPageItems = posts.length
+    ? [...posts]
+        .sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a))
+        .map((post) => ({
+          id: post.id,
+          slug: getPostSlug(post),
+          title: post.title,
+          subtitle: post.excerpt || post.summary || "אין תקציר זמין לפוסט זה.",
+          time: formatPostTime(post.published_at),
+          image: post.featured_image_url || fallbackImage,
+        }))
+    : shuffledFallbackNewsCards.map((item) => ({
+        ...item,
+        slug: slugify(item.title),
+        subtitle: "אין תקציר זמין לפוסט זה.",
+      }));
+
   const resolvedHistoryCards = useMemo(() => {
     if (!posts.length) {
       return shuffleArray(fallbackHistoryCards, randomSeed).map((item) => ({
@@ -281,6 +299,7 @@ export default function App() {
   const isAdminView = currentHash === "#/admin";
   const isAdminPostsView = currentHash === "#/admin/posts";
   const isGalleryView = currentHash === "#/galleries";
+  const isNewsView = currentHash === "#/news";
   const adminEditMatch = useMemo(
     () => currentHash.match(/^#\/admin\/posts\/edit\/?(.*)$/),
     [currentHash]
@@ -374,9 +393,16 @@ export default function App() {
             allPosts={posts}
             getPostSlug={getPostSlug}
           />
+        ) : isNewsView ? (
+          <NewsPage
+            items={resolvedNewsPageItems}
+            isLoading={isPostsLoading}
+            error={postsError}
+          />
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
+            recentPosts={resolvedRecentPosts}
             isLoading={isPostsLoading}
             error={postsError}
             getPostSlug={getPostSlug}
@@ -384,6 +410,7 @@ export default function App() {
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
+            recentPosts={resolvedRecentPosts}
             isLoading={isPostsLoading}
             error={postsError}
             getPostSlug={getPostSlug}
@@ -391,6 +418,7 @@ export default function App() {
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
+            recentPosts={resolvedRecentPosts}
             isLoading={isPostsLoading}
             error={postsError}
             getPostSlug={getPostSlug}
@@ -403,6 +431,7 @@ export default function App() {
               items={resolvedNewsCards}
               isLoading={isPostsLoading}
               error={postsError}
+              moreLink={{ href: "#/news", label: "חדשות נוספות" }}
             />
             <GalleryPreviewSection
               posts={posts}
