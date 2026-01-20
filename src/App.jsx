@@ -27,6 +27,7 @@ import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
   newsCards as fallbackNewsCards,
+  opinionColumns as fallbackOpinionColumns,
   tickerItems as fallbackTickerItems,
 } from "./data/mockData";
 
@@ -217,6 +218,32 @@ export default function App() {
     const timestamp = new Date(post?.published_at ?? 0).getTime();
     return Number.isNaN(timestamp) ? 0 : timestamp;
   };
+  const normalizeCategoryValue = (value) =>
+    value?.toString().trim().toLowerCase() ?? "";
+  const isOpinionCategory = (value) => {
+    const normalized = normalizeCategoryValue(value);
+    return ["דעות", "טורי דעה", "טור דעה", "דעה"].includes(normalized);
+  };
+  const getPostCategoryValues = (post) => {
+    const values = [];
+    if (post?.category) {
+      values.push(post.category);
+    }
+    if (Array.isArray(post?.categories)) {
+      post.categories.forEach((category) => {
+        if (category?.name) values.push(category.name);
+        if (category?.slug) values.push(category.slug);
+      });
+    }
+    return values;
+  };
+  const getOpinionAuthor = (post) =>
+    post?.author_name || post?.author || post?.author?.name || "מערכת";
+  const getOpinionAvatar = (post, fallbackAvatar) =>
+    post?.author_avatar_url ||
+    post?.author?.avatar_url ||
+    post?.featured_image_url ||
+    fallbackAvatar;
 
   const latestPost = useMemo(() => {
     if (!posts.length) {
@@ -316,6 +343,36 @@ export default function App() {
         slug: slugify(item.title),
         image: item.image || fallbackImage,
       }));
+
+  const resolvedOpinionColumns = useMemo(() => {
+    const fallbackItems = fallbackOpinionColumns.map((item) => ({
+      ...item,
+      slug: slugify(item.title),
+    }));
+
+    if (!posts.length) {
+      return fallbackItems;
+    }
+
+    const opinionPosts = posts.filter((post) =>
+      getPostCategoryValues(post).some(isOpinionCategory)
+    );
+
+    if (!opinionPosts.length) {
+      return fallbackItems;
+    }
+
+    return [...opinionPosts]
+      .sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a))
+      .slice(0, 3)
+      .map((post, index) => ({
+        title: post.title,
+        name: getOpinionAuthor(post),
+        avatar: getOpinionAvatar(post, fallbackItems[index]?.avatar || fallbackImage),
+        slug: getPostSlug(post),
+        highlight: index === 0 ? "טור השבוע" : undefined,
+      }));
+  }, [posts, fallbackImage]);
 
   const resolvedRecentPosts = useMemo(() => {
     if (!posts.length) return [];
