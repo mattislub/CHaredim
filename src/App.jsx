@@ -375,26 +375,11 @@ export default function App() {
             getPostSlug={getPostSlug}
           />
         ) : isGalleryView ? (
-          <GalleryPage
-            posts={Array.isArray(posts?.items) ? posts.items : posts}
-            isLoading={isPostsLoading}
-            error={postsError}
-            getPostSlug={getPostSlug}
-          />
+          <GalleryPage />
         ) : isGalleryView ? (
-          <GalleryPage
-            posts={Array.isArray(posts?.items) ? posts.items : posts}
-            isLoading={isPostsLoading}
-            error={postsError}
-            getPostSlug={getPostSlug}
-          />
+          <GalleryPage />
         ) : isGalleryView ? (
-          <GalleryPage
-            posts={Array.isArray(posts?.items) ? posts.items : posts}
-            isLoading={isPostsLoading}
-            error={postsError}
-            getPostSlug={getPostSlug}
-          />
+          <GalleryPage />
         ) : (
           <>
             <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />

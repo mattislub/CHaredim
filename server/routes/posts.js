@@ -149,7 +149,7 @@ router.get("/posts", async (req, res, next) => {
   }
 });
 
-router.get("/galleries", async (req, res, next) => {
+const handleGalleryRequest = async (req, res, next) => {
   try {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const limit = Math.min(
@@ -160,28 +160,28 @@ router.get("/galleries", async (req, res, next) => {
     const offset = (page - 1) * limit;
 
     const totalResult = await query(
-      `SELECT COUNT(DISTINCT posts.id)::bigint AS total
-       FROM posts
-       INNER JOIN post_terms ON post_terms.post_id = posts.id
-       INNER JOIN terms ON terms.id = post_terms.term_id
-       WHERE terms.taxonomy = 'category'
-         AND (terms.name = $1 OR terms.slug = $1)`,
+      `SELECT COUNT(DISTINCT p.id)::bigint AS total
+       FROM posts p
+       INNER JOIN post_terms pt ON pt.post_id = p.id
+       INNER JOIN terms t ON t.id = pt.term_id
+       WHERE t.taxonomy = 'category'
+         AND (t.name = $1 OR t.slug = $1)`,
       [term]
     );
     const total = Number(totalResult.rows[0]?.total ?? 0);
     const totalPages = Math.max(Math.ceil(total / limit), 1);
 
     const itemsResult = await query(
-      `SELECT id, slug, title, excerpt, published_at, featured_image_url
-       FROM posts
-       WHERE id IN (
-         SELECT post_terms.post_id
-         FROM post_terms
-         INNER JOIN terms ON terms.id = post_terms.term_id
-         WHERE terms.taxonomy = 'category'
-           AND (terms.name = $1 OR terms.slug = $1)
+      `${POST_WITH_TERMS_SELECT}
+       WHERE p.id IN (
+         SELECT pt.post_id
+         FROM post_terms pt
+         INNER JOIN terms t ON t.id = pt.term_id
+         WHERE t.taxonomy = 'category'
+           AND (t.name = $1 OR t.slug = $1)
        )
-       ORDER BY published_at DESC NULLS LAST, id DESC
+       GROUP BY p.id
+       ORDER BY p.published_at DESC NULLS LAST, p.id DESC
        LIMIT $2 OFFSET $3`,
       [term, limit, offset]
     );
@@ -200,7 +200,10 @@ router.get("/galleries", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+};
+
+router.get("/posts/galleries", handleGalleryRequest);
+router.get("/galleries", handleGalleryRequest);
 
 router.get("/posts/by-wp/:wp_id", async (req, res, next) => {
   try {
