@@ -45,7 +45,7 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
       {!isLoading && !error ? (
         galleryPosts.length ? (
           <>
-            <div className="gallery-page__grid">
+            <div className="gallery-page__grid gallery-page__grid--full">
               {visiblePosts.map(({ post, images }) => {
                 const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
                 return (

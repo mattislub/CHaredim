@@ -267,6 +267,10 @@ main {
   gap: 1.5rem;
 }
 
+.gallery-page__grid--full {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .gallery-page__actions {
   display: flex;
   justify-content: center;
