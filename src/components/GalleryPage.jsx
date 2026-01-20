@@ -79,7 +79,7 @@ export default function GalleryPage({
                           setVisibleCount((current) => current + PAGE_SIZE)
                         }
                       >
-                        טען עוד
+                        הצג עוד
                       </button>
                     </div>
                   ) : null}
