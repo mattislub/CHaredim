@@ -149,6 +149,48 @@ router.get("/posts", async (req, res, next) => {
   }
 });
 
+router.get("/posts/by-category", async (req, res, next) => {
+  try {
+    const name = req.query.name?.trim();
+    const slug = req.query.slug?.trim();
+    const filterValue = name || slug;
+
+    if (!filterValue) {
+      return res.status(400).json({ error: "missing_category" });
+    }
+
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 8, 1),
+      MAX_LIMIT
+    );
+
+    const filterColumn = name ? "tc.name" : "tc.slug";
+    const result = await query(
+      `${POST_WITH_TERMS_SELECT}
+       INNER JOIN post_terms ptc ON ptc.post_id = p.id
+       INNER JOIN terms tc ON tc.id = ptc.term_id
+       WHERE tc.taxonomy = 'category'
+         AND ${filterColumn} = $1
+       GROUP BY p.id
+       ORDER BY p.published_at DESC NULLS LAST, p.id DESC
+       LIMIT $2`,
+      [filterValue, limit]
+    );
+
+    if (process.env.NODE_ENV === "production") {
+      res.set("Cache-Control", "public, max-age=30");
+    }
+
+    return res.json({
+      category: filterValue,
+      limit,
+      items: result.rows,
+    });
+  } catch (err) {
+    return next(err);
+  }
+});
+
 router.get("/posts/by-wp/:wp_id", async (req, res, next) => {
   try {
     const wpId = Number.parseInt(req.params.wp_id, 10);
