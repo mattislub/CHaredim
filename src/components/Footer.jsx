@@ -1,5 +1,5 @@
 import { footerLinks } from "../data/mockData";
-import logo from "../assets/charedim-logo.svg";
+import logo from "../assets/charedim-logo.png";
 
 export default function Footer() {
   return (
