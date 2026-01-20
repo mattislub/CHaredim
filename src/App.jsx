@@ -77,7 +77,7 @@ export default function App() {
       try {
         setIsPostsLoading(true);
         setPostsError("");
-        const data = await fetchPosts({ limit: 12, signal: controller.signal });
+        const data = await fetchPosts({ limit: 100, signal: controller.signal });
         setPosts(Array.isArray(data.items) ? data.items : []);
       } catch (error) {
         if (error?.name !== "AbortError") {
