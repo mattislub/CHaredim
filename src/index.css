@@ -49,6 +49,21 @@ footer {
   gap: 1rem;
 }
 
+.header__nav--home {
+  position: fixed;
+  top: 120px;
+  right: max(2vw, 1.5rem);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(246, 247, 251, 0.95);
+  border: 1px solid #e5e7ef;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+  z-index: 20;
+}
+
 .header__nav-item {
   border: none;
   background: none;
@@ -1293,6 +1308,17 @@ main {
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
+  }
+
+  .header__nav--home {
+    position: static;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
   }
 
   .grid--news {

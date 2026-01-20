@@ -373,6 +373,7 @@ export default function App() {
   };
 
   const isAdminRoute = currentHash.startsWith("#/admin");
+  const isHomeView = currentHash === "#/" || currentHash === "";
   const isAdminView = currentHash === "#/admin";
   const isAdminPostsView = currentHash === "#/admin/posts";
   const isGalleryView = currentHash === "#/galleries";
@@ -394,7 +395,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header />
+      <Header isHome={isHomeView} />
       <main>
         {isAdminRoute ? (
           !isAdminAuthenticated ? (

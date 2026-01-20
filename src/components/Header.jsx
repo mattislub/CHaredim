@@ -7,11 +7,11 @@ const navItems = [
   { label: "מבזקים" },
 ];
 
-export default function Header() {
+export default function Header({ isHome = false }) {
   return (
     <header className="header">
       <div className="header__logo">חרדים</div>
-      <nav className="header__nav">
+      <nav className={`header__nav${isHome ? " header__nav--home" : ""}`}>
         {navItems.map((item) =>
           item.href ? (
             <a
