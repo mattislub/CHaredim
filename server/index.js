@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import postsRouter from "./routes/posts.js";
 import galleriesRouter from "./routes/galleries.js";
+import communitiesRouter from "./routes/communities.js";
 import { query } from "./db.js";
 import { errorHandler } from "./middleware/error.js";
 
@@ -45,6 +46,7 @@ app.get("/api/health", async (req, res, next) => {
 
 app.use("/api", postsRouter);
 app.use("/api/galleries", galleriesRouter);
+app.use("/api/communities", communitiesRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: "not_found" });

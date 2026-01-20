@@ -16,7 +16,7 @@ import PostPage from "./components/PostPage";
 import PopularList from "./components/PopularList";
 import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
-import { fetchPosts, fetchPostsByCategory } from "./api/posts";
+import { fetchCommunityPosts, fetchPosts, fetchPostsByCategory } from "./api/posts";
 import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
@@ -64,6 +64,9 @@ export default function App() {
   });
   const [isCategoryLoading, setIsCategoryLoading] = useState(true);
   const [categoryError, setCategoryError] = useState("");
+  const [communityPagePosts, setCommunityPagePosts] = useState([]);
+  const [isCommunityLoading, setIsCommunityLoading] = useState(true);
+  const [communityError, setCommunityError] = useState("");
   const [randomSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
   useEffect(() => {
@@ -94,6 +97,32 @@ export default function App() {
     };
 
     loadPosts();
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadCommunityPosts = async () => {
+      try {
+        setIsCommunityLoading(true);
+        setCommunityError("");
+        const data = await fetchCommunityPosts({
+          limit: 40,
+          signal: controller.signal,
+        });
+        setCommunityPagePosts(Array.isArray(data.items) ? data.items : []);
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          setCommunityError("failed");
+        }
+      } finally {
+        setIsCommunityLoading(false);
+      }
+    };
+
+    loadCommunityPosts();
 
     return () => controller.abort();
   }, []);
@@ -259,6 +288,19 @@ export default function App() {
         subtitle: "אין תקציר זמין לפוסט זה.",
       }));
 
+  const resolvedCommunityPageItems = useMemo(() => {
+    if (!communityPagePosts.length) return [];
+
+    return communityPagePosts.map((post) => ({
+      id: post.id,
+      slug: getPostSlug(post),
+      title: post.title,
+      subtitle: post.excerpt || post.summary || "אין תקציר זמין לפוסט זה.",
+      time: formatPostTime(post.published_at),
+      image: post.featured_image_url || fallbackImage,
+    }));
+  }, [communityPagePosts, fallbackImage, getPostSlug]);
+
   const resolvedPopularPosts = posts.length
     ? shuffledPosts.slice(0, 5).map((post) => ({
         title: post.title,
@@ -334,6 +376,7 @@ export default function App() {
   const isAdminView = currentHash === "#/admin";
   const isAdminPostsView = currentHash === "#/admin/posts";
   const isGalleryView = currentHash === "#/galleries";
+  const isCommunityView = currentHash === "#/communities";
   const isNewsView = currentHash === "#/news";
   const adminEditMatch = useMemo(
     () => currentHash.match(/^#\/admin\/posts\/edit\/?(.*)$/),
@@ -443,21 +486,17 @@ export default function App() {
             error={postsError}
             getPostSlug={getPostSlug}
           />
-        ) : isGalleryView ? (
-          <GalleryPage
-            posts={Array.isArray(posts?.items) ? posts.items : posts}
+        ) : isCommunityView ? (
+          <NewsPage
+            items={resolvedCommunityPageItems}
+            isLoading={isCommunityLoading}
+            error={communityError}
             recentPosts={resolvedRecentPosts}
-            isLoading={isPostsLoading}
-            error={postsError}
-            getPostSlug={getPostSlug}
-          />
-        ) : isGalleryView ? (
-          <GalleryPage
-            posts={Array.isArray(posts?.items) ? posts.items : posts}
-            recentPosts={resolvedRecentPosts}
-            isLoading={isPostsLoading}
-            error={postsError}
-            getPostSlug={getPostSlug}
+            badge="קהילות"
+            title="חדשות הקהילה"
+            subtitle="העדכונים האחרונים מהקהילות החרדיות."
+            loadMoreLabel="הצג עוד מהקהילה"
+            emptyMessage="עדיין אין פוסטים בקטגוריית קהילות."
           />
         ) : (
           <>

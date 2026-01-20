@@ -2,7 +2,7 @@ const navItems = [
   { label: "דף הבית", href: "#/" },
   { label: "גלריות", href: "#/galleries" },
   { label: "חדשות", href: "#/news" },
-  { label: "קהילות" },
+  { label: "קהילות", href: "#/communities" },
   { label: "טורי דעה" },
   { label: "מבזקים" },
 ];
