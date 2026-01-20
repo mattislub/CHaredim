@@ -1828,6 +1828,46 @@ main {
   font-weight: 500;
 }
 
+.admin-post-edit__content-preview {
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 1rem 1.2rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-post-edit__content-preview-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-post-edit__content-preview-empty {
+  margin: 0;
+  color: #64748b;
+}
+
+.admin-post-edit__content-preview p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.admin-post-edit__content-preview ul,
+.admin-post-edit__content-preview ol {
+  margin: 0;
+  padding-inline-start: 1.2rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.admin-post-edit__content-preview hr {
+  border: none;
+  border-top: 1px solid #cbd5f5;
+  margin: 0.5rem 0;
+}
+
 .admin-post-edit__preview {
   grid-column: span 2;
   background: #f8fafc;

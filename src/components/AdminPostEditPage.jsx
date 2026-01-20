@@ -197,6 +197,12 @@ export default function AdminPostEditPage({
     insertBlock(`${title}\n`);
   };
 
+  const insertEmphasis = () => {
+    const selection = getSelectionDetails();
+    const emphasis = selection?.selectedText?.trim() || "טקסט מודגש";
+    insertBlock(`דגש: ${emphasis}`);
+  };
+
   const insertQuote = () => {
     const selection = getSelectionDetails();
     const quote = selection?.selectedText?.trim() || "ציטוט חשוב";
@@ -260,6 +266,73 @@ export default function AdminPostEditPage({
     }
     insertBlock(`קישור יוטיוב: ${cleanedUrl}`);
   };
+
+  const buildPreviewBlocks = (value) => {
+    if (!value) return [];
+    const lines = value.split("\n");
+    const blocks = [];
+    let bulletItems = [];
+    let numberedItems = [];
+
+    const flushLists = () => {
+      if (bulletItems.length) {
+        blocks.push({ type: "bullet", items: bulletItems });
+        bulletItems = [];
+      }
+      if (numberedItems.length) {
+        blocks.push({ type: "numbered", items: numberedItems });
+        numberedItems = [];
+      }
+    };
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        flushLists();
+        return;
+      }
+      if (trimmed.startsWith("• ")) {
+        bulletItems.push(trimmed.replace(/^•\s+/, ""));
+        return;
+      }
+      if (/^\d+\.\s+/.test(trimmed)) {
+        numberedItems.push(trimmed.replace(/^\d+\.\s+/, ""));
+        return;
+      }
+      flushLists();
+      if (trimmed === "⸻⸻⸻") {
+        blocks.push({ type: "divider" });
+        return;
+      }
+      if (trimmed.startsWith("דגש:")) {
+        blocks.push({
+          type: "emphasis",
+          text: trimmed.replace(/^דגש:\s*/, ""),
+        });
+        return;
+      }
+      if (trimmed.startsWith("קישור יוטיוב:")) {
+        blocks.push({
+          type: "youtube",
+          text: trimmed.replace(/^קישור יוטיוב:\s*/, ""),
+        });
+        return;
+      }
+      if (/^https?:\/\//.test(trimmed)) {
+        blocks.push({ type: "link", text: trimmed });
+        return;
+      }
+      blocks.push({ type: "paragraph", text: trimmed });
+    });
+
+    flushLists();
+    return blocks;
+  };
+
+  const contentPreviewBlocks = useMemo(
+    () => buildPreviewBlocks(content),
+    [content]
+  );
 
   const stepContent = () => {
     switch (steps[currentStep]?.id) {
@@ -488,6 +561,13 @@ export default function AdminPostEditPage({
                 <button
                   className="admin-post-edit__tool"
                   type="button"
+                  onClick={insertEmphasis}
+                >
+                  הדגשה
+                </button>
+                <button
+                  className="admin-post-edit__tool"
+                  type="button"
                   onClick={insertQuote}
                 >
                   ציטוט
@@ -550,6 +630,67 @@ export default function AdminPostEditPage({
               הסרגל מוסיף פסקאות, כותרות, רשימות, ציטוטים וקישורים בצורה נקייה
               לקריאה - בלי קטעי קוד בטקסט העריכה.
             </span>
+            <div className="admin-post-edit__content-preview">
+              <p className="admin-post-edit__content-preview-title">
+                תצוגה מקדימה חיה
+              </p>
+              {contentPreviewBlocks.length ? (
+                contentPreviewBlocks.map((block, index) => {
+                  if (block.type === "bullet") {
+                    return (
+                      <ul key={`bullet-${index}`}>
+                        {block.items.map((item, itemIndex) => (
+                          <li key={`bullet-item-${itemIndex}`}>{item}</li>
+                        ))}
+                      </ul>
+                    );
+                  }
+                  if (block.type === "numbered") {
+                    return (
+                      <ol key={`numbered-${index}`}>
+                        {block.items.map((item, itemIndex) => (
+                          <li key={`numbered-item-${itemIndex}`}>{item}</li>
+                        ))}
+                      </ol>
+                    );
+                  }
+                  if (block.type === "divider") {
+                    return <hr key={`divider-${index}`} />;
+                  }
+                  if (block.type === "emphasis") {
+                    return (
+                      <p key={`emphasis-${index}`}>
+                        <strong>{block.text}</strong>
+                      </p>
+                    );
+                  }
+                  if (block.type === "youtube") {
+                    return (
+                      <p key={`youtube-${index}`}>
+                        <span>קישור יוטיוב: </span>
+                        <a href={block.text} target="_blank" rel="noreferrer">
+                          {block.text}
+                        </a>
+                      </p>
+                    );
+                  }
+                  if (block.type === "link") {
+                    return (
+                      <p key={`link-${index}`}>
+                        <a href={block.text} target="_blank" rel="noreferrer">
+                          {block.text}
+                        </a>
+                      </p>
+                    );
+                  }
+                  return <p key={`paragraph-${index}`}>{block.text}</p>;
+                })
+              ) : (
+                <p className="admin-post-edit__content-preview-empty">
+                  התצוגה המקדימה תופיע כאן בזמן עריכה.
+                </p>
+              )}
+            </div>
           </label>
         );
       case "details":
@@ -875,6 +1016,13 @@ export default function AdminPostEditPage({
                   <button
                     className="admin-post-edit__tool"
                     type="button"
+                    onClick={insertEmphasis}
+                  >
+                    הדגשה
+                  </button>
+                  <button
+                    className="admin-post-edit__tool"
+                    type="button"
                     onClick={insertQuote}
                   >
                     ציטוט
@@ -937,6 +1085,67 @@ export default function AdminPostEditPage({
                 הסרגל מוסיף פסקאות, כותרות, רשימות, ציטוטים וקישורים בצורה נקייה
                 לקריאה - בלי קטעי קוד בטקסט העריכה.
               </span>
+              <div className="admin-post-edit__content-preview">
+                <p className="admin-post-edit__content-preview-title">
+                  תצוגה מקדימה חיה
+                </p>
+                {contentPreviewBlocks.length ? (
+                  contentPreviewBlocks.map((block, index) => {
+                    if (block.type === "bullet") {
+                      return (
+                        <ul key={`bullet-${index}`}>
+                          {block.items.map((item, itemIndex) => (
+                            <li key={`bullet-item-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
+                      );
+                    }
+                    if (block.type === "numbered") {
+                      return (
+                        <ol key={`numbered-${index}`}>
+                          {block.items.map((item, itemIndex) => (
+                            <li key={`numbered-item-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ol>
+                      );
+                    }
+                    if (block.type === "divider") {
+                      return <hr key={`divider-${index}`} />;
+                    }
+                    if (block.type === "emphasis") {
+                      return (
+                        <p key={`emphasis-${index}`}>
+                          <strong>{block.text}</strong>
+                        </p>
+                      );
+                    }
+                    if (block.type === "youtube") {
+                      return (
+                        <p key={`youtube-${index}`}>
+                          <span>קישור יוטיוב: </span>
+                          <a href={block.text} target="_blank" rel="noreferrer">
+                            {block.text}
+                          </a>
+                        </p>
+                      );
+                    }
+                    if (block.type === "link") {
+                      return (
+                        <p key={`link-${index}`}>
+                          <a href={block.text} target="_blank" rel="noreferrer">
+                            {block.text}
+                          </a>
+                        </p>
+                      );
+                    }
+                    return <p key={`paragraph-${index}`}>{block.text}</p>;
+                  })
+                ) : (
+                  <p className="admin-post-edit__content-preview-empty">
+                    התצוגה המקדימה תופיע כאן בזמן עריכה.
+                  </p>
+                )}
+              </div>
             </label>
           </div>
 
