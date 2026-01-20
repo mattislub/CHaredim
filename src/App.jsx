@@ -16,7 +16,12 @@ import PostPage from "./components/PostPage";
 import PopularList from "./components/PopularList";
 import SponsoredArea from "./components/SponsoredArea";
 import Ticker from "./components/Ticker";
-import { fetchCommunityPosts, fetchPosts, fetchPostsByCategory } from "./api/posts";
+import {
+  fetchCommunityHighlights,
+  fetchCommunityPosts,
+  fetchPosts,
+  fetchPostsByCategory,
+} from "./api/posts";
 import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
@@ -135,8 +140,7 @@ export default function App() {
         setIsCategoryLoading(true);
         setCategoryError("");
         const [communitiesResponse, historyResponse] = await Promise.all([
-          fetchPostsByCategory({
-            name: "קהילות",
+          fetchCommunityHighlights({
             limit: 8,
             signal: controller.signal,
           }),
