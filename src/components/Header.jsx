@@ -1,3 +1,5 @@
+import logo from "../assets/charedim-logo.svg";
+
 const navItems = [
   { label: "דף הבית", href: "#/" },
   { label: "גלריות", href: "#/galleries" },
@@ -10,7 +12,9 @@ const navItems = [
 export default function Header() {
   return (
     <header className="header">
-      <div className="header__logo">חרדים</div>
+      <div className="header__logo">
+        <img src={logo} alt="חרדים" />
+      </div>
       <nav className="header__nav">
         {navItems.map((item) =>
           item.href ? (
