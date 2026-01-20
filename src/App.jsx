@@ -402,6 +402,7 @@ export default function App() {
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
+            recentPosts={resolvedRecentPosts}
             isLoading={isPostsLoading}
             error={postsError}
             getPostSlug={getPostSlug}
@@ -409,6 +410,7 @@ export default function App() {
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
+            recentPosts={resolvedRecentPosts}
             isLoading={isPostsLoading}
             error={postsError}
             getPostSlug={getPostSlug}
@@ -416,6 +418,7 @@ export default function App() {
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
+            recentPosts={resolvedRecentPosts}
             isLoading={isPostsLoading}
             error={postsError}
             getPostSlug={getPostSlug}

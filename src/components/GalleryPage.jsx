@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import GalleryCard from "./GalleryCard";
+import RecentPostsSidebar from "./RecentPostsSidebar";
 import { extractPostImages, isInGalleryCategory } from "../utils/gallery";
 
-export default function GalleryPage({ posts = [], isLoading, error, getPostSlug }) {
+export default function GalleryPage({
+  posts = [],
+  recentPosts = [],
+  isLoading,
+  error,
+  getPostSlug,
+}) {
   const PAGE_SIZE = 9;
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const galleryPosts = useMemo(() => {
@@ -29,53 +36,64 @@ export default function GalleryPage({ posts = [], isLoading, error, getPostSlug 
 
   return (
     <section className="gallery-page" dir="rtl">
-      <div className="gallery-page__header">
-        <p className="gallery-page__badge">גלריות</p>
-        <h1>גלריות תמונות</h1>
-      </div>
+      <div className="gallery-page__layout post-page__layout">
+        <div className="gallery-page__header">
+          <p className="gallery-page__badge">גלריות</p>
+          <h1>גלריות תמונות</h1>
+        </div>
 
-      {isLoading ? <p className="gallery-page__status">טוען גלריות...</p> : null}
+        {isLoading ? <p className="gallery-page__status">טוען גלריות...</p> : null}
 
-      {error ? (
-        <p className="gallery-page__status" role="alert">
-          לא הצלחנו לטעון את הגלריות כרגע.
-        </p>
-      ) : null}
-
-      {!isLoading && !error ? (
-        galleryPosts.length ? (
-          <>
-            <div className="gallery-page__grid gallery-page__grid--full">
-              {visiblePosts.map(({ post, images }) => {
-                const slug = getPostSlug ? getPostSlug(post) : String(post.id ?? "");
-                return (
-                  <GalleryCard
-                    key={slug || post.id}
-                    post={post}
-                    images={images}
-                    slug={encodeURIComponent(slug)}
-                  />
-                );
-              })}
-            </div>
-            {hasMore ? (
-              <div className="gallery-page__actions">
-                <button
-                  className="gallery-page__load-more"
-                  type="button"
-                  onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}
-                >
-                  טען עוד
-                </button>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <p className="gallery-page__empty">
-            עדיין אין פוסטים בקטגוריית גלריות עם 5 תמונות ומעלה להצגה.
+        {error ? (
+          <p className="gallery-page__status" role="alert">
+            לא הצלחנו לטעון את הגלריות כרגע.
           </p>
-        )
-      ) : null}
+        ) : null}
+
+        {!isLoading && !error ? (
+          <div className="post-page__grid">
+            <div className="gallery-page__main">
+              {galleryPosts.length ? (
+                <>
+                  <div className="gallery-page__grid gallery-page__grid--full">
+                    {visiblePosts.map(({ post, images }) => {
+                      const slug = getPostSlug
+                        ? getPostSlug(post)
+                        : String(post.id ?? "");
+                      return (
+                        <GalleryCard
+                          key={slug || post.id}
+                          post={post}
+                          images={images}
+                          slug={encodeURIComponent(slug)}
+                        />
+                      );
+                    })}
+                  </div>
+                  {hasMore ? (
+                    <div className="gallery-page__actions">
+                      <button
+                        className="gallery-page__load-more"
+                        type="button"
+                        onClick={() =>
+                          setVisibleCount((current) => current + PAGE_SIZE)
+                        }
+                      >
+                        הצג עוד
+                      </button>
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <p className="gallery-page__empty">
+                  עדיין אין פוסטים בקטגוריית גלריות עם 5 תמונות ומעלה להצגה.
+                </p>
+              )}
+            </div>
+            <RecentPostsSidebar items={recentPosts} />
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }
