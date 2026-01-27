@@ -26,6 +26,8 @@ const fixWpHtml = (html) => {
       .replace(/data-sizes=/g, "sizes=")
       // add loading=lazy to images if missing
       .replace(/<img(?![^>]*\sloading=)/g, '<img loading="lazy"')
+      .replace(/&#8211;/g, "–")
+      .replace(/\[&hellip;\]/g, "…")
   );
 };
 
