@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { query } from "../db.js";
+import { getClient, query } from "../db.js";
 
 const router = Router();
 
@@ -83,6 +83,12 @@ const normalizeCharedimPost = (post) => {
 
   const featuredMedia = post?._embedded?.["wp:featuredmedia"]?.[0];
 
+  const terms = Array.isArray(post?._embedded?.["wp:term"])
+    ? post._embedded["wp:term"].flat()
+    : [];
+  const categories = terms.filter((term) => term?.taxonomy === "category");
+  const tags = terms.filter((term) => term?.taxonomy === "post_tag");
+
   return {
     wp_id: Number.isInteger(wpId) ? wpId : null,
     slug,
@@ -92,7 +98,44 @@ const normalizeCharedimPost = (post) => {
     published_at: post?.date ?? null,
     modified_at: post?.modified ?? null,
     featured_image_url: featuredMedia?.source_url ?? null,
+    categories: categories.map((term) => ({
+      name: term?.name ?? "",
+      slug: term?.slug ?? "",
+      taxonomy: "category",
+    })),
+    tags: tags.map((term) => ({
+      name: term?.name ?? "",
+      slug: term?.slug ?? "",
+      taxonomy: "post_tag",
+    })),
   };
+};
+
+const ensureTerm = async (client, term) => {
+  if (!term?.taxonomy || (!term?.slug && !term?.name)) {
+    return null;
+  }
+
+  const existing = await client.query(
+    `SELECT id
+     FROM terms
+     WHERE taxonomy = $1 AND (slug = $2 OR name = $3)
+     LIMIT 1`,
+    [term.taxonomy, term.slug, term.name]
+  );
+
+  if (existing.rows.length) {
+    return existing.rows[0].id;
+  }
+
+  const inserted = await client.query(
+    `INSERT INTO terms (name, slug, taxonomy)
+     VALUES ($1, $2, $3)
+     RETURNING id`,
+    [term.name, term.slug, term.taxonomy]
+  );
+
+  return inserted.rows[0]?.id ?? null;
 };
 
 const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
@@ -363,6 +406,8 @@ router.get("/posts/:slug", async (req, res, next) => {
 });
 
 router.post("/posts/import-charedim", async (req, res, next) => {
+  const client = await getClient();
+
   try {
     const limit = Math.min(
       Math.max(parseInt(req.body?.limit, 10) || 20, 1),
@@ -391,7 +436,7 @@ router.post("/posts/import-charedim", async (req, res, next) => {
       .filter((value) => Number.isInteger(value));
 
     const existing = wpIds.length
-      ? await query(
+      ? await client.query(
           "SELECT wp_id FROM posts WHERE wp_id = ANY($1::int[])",
           [wpIds]
         )
@@ -409,13 +454,16 @@ router.post("/posts/import-charedim", async (req, res, next) => {
 
     let inserted = 0;
 
+    await client.query("BEGIN");
+
     for (const post of toInsert) {
-      await query(
+      const insertedPost = await client.query(
         `INSERT INTO posts
           (wp_id, slug, title, html, excerpt, published_at, modified_at, featured_image_url)
          VALUES
           ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT (wp_id) DO NOTHING`,
+         ON CONFLICT (wp_id) DO NOTHING
+         RETURNING id`,
         [
           post.wp_id,
           post.slug,
@@ -427,15 +475,45 @@ router.post("/posts/import-charedim", async (req, res, next) => {
           post.featured_image_url,
         ]
       );
+
+      const postId = insertedPost.rows[0]?.id;
+      if (!postId) {
+        continue;
+      }
+
+      const terms = [
+        ...(Array.isArray(post.categories) ? post.categories : []),
+        ...(Array.isArray(post.tags) ? post.tags : []),
+      ];
+
+      for (const term of terms) {
+        const termId = await ensureTerm(client, term);
+        if (!termId) continue;
+
+        await client.query(
+          `INSERT INTO post_terms (post_id, term_id)
+           SELECT $1, $2
+           WHERE NOT EXISTS (
+             SELECT 1 FROM post_terms WHERE post_id = $1 AND term_id = $2
+           )`,
+          [postId, termId]
+        );
+      }
+
       inserted += 1;
     }
+
+    await client.query("COMMIT");
 
     return res.json({
       inserted,
       skipped: normalizedPosts.length - inserted,
     });
   } catch (err) {
+    await client.query("ROLLBACK");
     return next(err);
+  } finally {
+    client.release();
   }
 });
 
