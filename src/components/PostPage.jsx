@@ -17,7 +17,10 @@ const formatPostTime = (value) => formatDateWithHebrew(value);
 
 const normalizeEntities = (value) => {
   if (typeof value !== "string") return value;
-  return value.replace(/&#8211;/g, "–").replace(/\[&hellip;\]/g, "…");
+  return value
+    .replace(/&#8211;/g, "–")
+    .replace(/\[&hellip;\]/g, "…")
+    .replace(/&quot;?/g, "\"");
 };
 
 const fixWpHtml = (html) => {

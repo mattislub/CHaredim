@@ -67,7 +67,11 @@ const normalizeTermIds = (items) =>
     .filter((value) => Number.isInteger(value));
 
 const normalizeEntities = (value = "") =>
-  value.toString().replace(/&#8211;/g, "–").replace(/\[&hellip;\]/g, "…");
+  value
+    .toString()
+    .replace(/&#8211;/g, "–")
+    .replace(/\[&hellip;\]/g, "…")
+    .replace(/&quot;?/g, "\"");
 
 const stripHtml = (value = "") =>
   normalizeEntities(
