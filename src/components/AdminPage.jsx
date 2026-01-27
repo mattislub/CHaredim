@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const adminActions = [
   { label: "ניהול פוסטים", hash: "#/admin/posts" },
   { label: "סטטוס ביקורים" },
@@ -43,7 +45,49 @@ const guestMessages = [
 ];
 
 export default function AdminPage() {
-  const notice = "כלי הניהול זמינים כאן לפעולות מערכת מהירות.";
+  const [importState, setImportState] = useState({
+    isLoading: false,
+    message: "",
+    tone: "info",
+  });
+  const notice =
+    "כלי הניהול זמינים כאן לפעולות מערכת מהירות, כולל יבוא פוסטים מהאתר החיצוני.";
+
+  const handleImportPosts = async () => {
+    try {
+      setImportState({
+        isLoading: true,
+        message: "מייבא פוסטים מהאתר charedim.co.il...",
+        tone: "info",
+      });
+
+      const response = await fetch("/api/posts/import-charedim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 20 }),
+      });
+
+      if (!response.ok) {
+        throw new Error("import_failed");
+      }
+
+      const data = await response.json();
+      const inserted = Number(data?.inserted ?? 0);
+      const skipped = Number(data?.skipped ?? 0);
+
+      setImportState({
+        isLoading: false,
+        message: `ייבוא הושלם: נוספו ${inserted} פוסטים, ${skipped} דולגו כדי למנוע כפילויות.`,
+        tone: "success",
+      });
+    } catch (error) {
+      setImportState({
+        isLoading: false,
+        message: "הייבוא נכשל. נסו שוב בעוד כמה דקות.",
+        tone: "error",
+      });
+    }
+  };
 
   return (
     <section className="admin-page">
@@ -73,10 +117,28 @@ export default function AdminPage() {
                 {action.label}
               </button>
             ))}
+            <button
+              className="admin-page__button"
+              type="button"
+              onClick={handleImportPosts}
+              disabled={importState.isLoading}
+            >
+              {importState.isLoading
+                ? "מייבא פוסטים..."
+                : "ייבוא פוסטים מ-charedim.co.il"}
+            </button>
           </div>
           {notice ? (
             <p className="admin-page__notice" role="status">
               {notice}
+            </p>
+          ) : null}
+          {importState.message ? (
+            <p
+              className={`admin-page__notice admin-page__notice--${importState.tone}`}
+              role="status"
+            >
+              {importState.message}
             </p>
           ) : null}
         </div>

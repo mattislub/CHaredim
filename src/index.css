@@ -1403,6 +1403,24 @@ main {
   font-weight: 600;
 }
 
+.admin-page__notice--success {
+  border-color: #bbf7d0;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.admin-page__notice--error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.admin-page__notice--info {
+  border-color: #bae6fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
 .admin-page__button {
   border: none;
   background: #4b5563;
@@ -1415,6 +1433,12 @@ main {
   width: 100%;
   text-align: center;
   box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
+}
+
+.admin-page__button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  box-shadow: none;
 }
 
 .admin-page__messages {
