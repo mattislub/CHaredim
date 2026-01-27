@@ -8,8 +8,8 @@ export default function BriefsPage({
   isLoading = false,
   error = "",
   badge = "מבזקים",
-  title = "מבזקים מהירים מהמערכת",
-  subtitle = "עדכונים קצרים ומורחבים שנאספו מאתר charedim.co.il.",
+  title = "מבזקים",
+  subtitle = "",
   loadMoreLabel = "הצג עוד מבזקים",
   emptyMessage = "עדיין אין מבזקים להצגה.",
 }) {
