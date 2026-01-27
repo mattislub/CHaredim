@@ -15,10 +15,15 @@ const buildParagraphs = (content, fallback) => {
 
 const formatPostTime = (value) => formatDateWithHebrew(value);
 
+const normalizeEntities = (value) => {
+  if (typeof value !== "string") return value;
+  return value.replace(/&#8211;/g, "–").replace(/\[&hellip;\]/g, "…");
+};
+
 const fixWpHtml = (html) => {
   if (!html) return "";
 
-  return (
+  return normalizeEntities(
     html
       // lazyload iframes/images
       .replace(/data-src=/g, "src=")
@@ -234,7 +239,7 @@ export default function PostPage({
                             className="post-page__taxonomy-chip post-page__taxonomy-chip--tag"
                             key={tag.id ?? tag.slug ?? tag.name}
                           >
-                            {tag.name}
+                            {normalizeEntities(tag.name)}
                           </li>
                         ))}
                       </ul>
