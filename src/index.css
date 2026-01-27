@@ -794,6 +794,10 @@ main {
   color: #475569;
 }
 
+.briefs-page__status--error {
+  color: #b91c1c;
+}
+
 .briefs-page__list {
   display: grid;
   gap: 1.5rem;

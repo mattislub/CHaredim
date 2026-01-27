@@ -4,7 +4,9 @@ import cors from "cors";
 import postsRouter from "./routes/posts.js";
 import galleriesRouter from "./routes/galleries.js";
 import communitiesRouter from "./routes/communities.js";
+import briefsRouter from "./routes/briefs.js";
 import { query } from "./db.js";
+import { ensureBriefsTable } from "./db/schema.js";
 import { errorHandler } from "./middleware/error.js";
 
 const app = express();
@@ -47,6 +49,7 @@ app.get("/api/health", async (req, res, next) => {
 app.use("/api", postsRouter);
 app.use("/api/galleries", galleriesRouter);
 app.use("/api/communities", communitiesRouter);
+app.use("/api", briefsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: "not_found" });
@@ -56,4 +59,8 @@ app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+});
+
+ensureBriefsTable().catch((error) => {
+  console.error("Failed to ensure briefs table", error);
 });

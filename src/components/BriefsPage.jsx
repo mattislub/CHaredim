@@ -5,6 +5,8 @@ const LOAD_MORE_COUNT = 6;
 
 export default function BriefsPage({
   items,
+  isLoading = false,
+  error = "",
   badge = "מבזקים",
   title = "מבזקים מהירים מהמערכת",
   subtitle = "עדכונים קצרים ומורחבים שנאספו מאתר charedim.co.il.",
@@ -25,39 +27,54 @@ export default function BriefsPage({
         </div>
         <p className="briefs-page__subtitle">{subtitle}</p>
       </header>
-      {hasItems ? (
-        <>
-          <div className="briefs-page__list">
-            {visibleItems.map((item) => (
-              <article className="briefs-page__item" key={item.id ?? item.title}>
-                <div className="briefs-page__meta">
-                  <h2>{item.title}</h2>
-                  <p>{item.subtitle}</p>
-                </div>
-                <div className="briefs-page__footer">
-                  <span className="briefs-page__time">{item.time}</span>
-                  <span className="briefs-page__source">
-                    מקור: <a href="https://charedim.co.il">{item.source}</a>
-                  </span>
-                </div>
-              </article>
-            ))}
-          </div>
-          {canLoadMore ? (
-            <div className="briefs-page__more">
-              <button
-                type="button"
-                className="briefs-page__more-button"
-                onClick={() => setVisibleCount((count) => count + LOAD_MORE_COUNT)}
-              >
-                {loadMoreLabel}
-              </button>
+      {isLoading ? (
+        <p className="briefs-page__status">טוען מבזקים מהשרת...</p>
+      ) : null}
+      {error ? (
+        <p className="briefs-page__status briefs-page__status--error" role="alert">
+          לא הצלחנו לטעון את המבזקים כרגע. נסו שוב מאוחר יותר.
+        </p>
+      ) : null}
+      {!isLoading && !error ? (
+        hasItems ? (
+          <>
+            <div className="briefs-page__list">
+              {visibleItems.map((item) => (
+                <article className="briefs-page__item" key={item.id ?? item.title}>
+                  <div className="briefs-page__meta">
+                    <h2>{item.title}</h2>
+                    <p>{item.subtitle}</p>
+                  </div>
+                  <div className="briefs-page__footer">
+                    <span className="briefs-page__time">{item.time}</span>
+                    <span className="briefs-page__source">
+                      מקור:{" "}
+                      <a href={item.sourceUrl || "https://charedim.co.il"}>
+                        {item.source}
+                      </a>
+                    </span>
+                  </div>
+                </article>
+              ))}
             </div>
-          ) : null}
-        </>
-      ) : (
-        <p className="briefs-page__status">{emptyMessage}</p>
-      )}
+            {canLoadMore ? (
+              <div className="briefs-page__more">
+                <button
+                  type="button"
+                  className="briefs-page__more-button"
+                  onClick={() =>
+                    setVisibleCount((count) => count + LOAD_MORE_COUNT)
+                  }
+                >
+                  {loadMoreLabel}
+                </button>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <p className="briefs-page__status">{emptyMessage}</p>
+        )
+      ) : null}
     </section>
   );
 }

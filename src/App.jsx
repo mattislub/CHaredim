@@ -20,6 +20,7 @@ import Ticker from "./components/Ticker";
 import {
   fetchCommunityHighlights,
   fetchCommunityPosts,
+  fetchBriefs,
   fetchPosts,
   fetchPostsByCategory,
 } from "./api/posts";
@@ -75,6 +76,9 @@ export default function App() {
   const [communityPagePosts, setCommunityPagePosts] = useState([]);
   const [isCommunityLoading, setIsCommunityLoading] = useState(true);
   const [communityError, setCommunityError] = useState("");
+  const [briefs, setBriefs] = useState([]);
+  const [isBriefsLoading, setIsBriefsLoading] = useState(true);
+  const [briefsError, setBriefsError] = useState("");
   const [randomSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
   useEffect(() => {
@@ -105,6 +109,29 @@ export default function App() {
     };
 
     loadPosts();
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadBriefs = async () => {
+      try {
+        setIsBriefsLoading(true);
+        setBriefsError("");
+        const data = await fetchBriefs({ limit: 30, signal: controller.signal });
+        setBriefs(Array.isArray(data.items) ? data.items : []);
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          setBriefsError("failed");
+        }
+      } finally {
+        setIsBriefsLoading(false);
+      }
+    };
+
+    loadBriefs();
 
     return () => controller.abort();
   }, []);
@@ -346,8 +373,13 @@ export default function App() {
         image: item.image || fallbackImage,
       }));
 
-  const resolvedBriefsItems = fallbackBriefsItems.map((item) => ({
+  const resolvedBriefsItems = (
+    briefsError ? fallbackBriefsItems : briefs
+  ).map((item) => ({
     ...item,
+    time: item.time || formatPostTime(item.published_at),
+    source: item.source || "charedim.co.il",
+    sourceUrl: item.source_url,
   }));
 
   const resolvedOpinionColumns = useMemo(() => {
@@ -547,7 +579,11 @@ export default function App() {
             recentPosts={resolvedRecentPosts}
           />
         ) : isBriefsView ? (
-          <BriefsPage items={resolvedBriefsItems} />
+          <BriefsPage
+            items={resolvedBriefsItems}
+            isLoading={isBriefsLoading}
+            error={briefsError}
+          />
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
