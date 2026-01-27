@@ -24,6 +24,7 @@ const COMMUNITY_GENERAL_CATEGORIES = [
   "בחצרות האדמורי\"ם",
   "בנלאומי",
 ];
+const CHAREDIM_POSTS_URL = "https://www.charedim.co.il/wp-json/wp/v2/posts";
 
 const POST_WITH_TERMS_SELECT = `
   SELECT
@@ -64,6 +65,35 @@ const normalizeTermIds = (items) =>
   (Array.isArray(items) ? items : [])
     .map((item) => Number.parseInt(item?.id, 10))
     .filter((value) => Number.isInteger(value));
+
+const stripHtml = (value = "") =>
+  value
+    .toString()
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const normalizeCharedimPost = (post) => {
+  if (!post) return null;
+
+  const wpId = Number.parseInt(post.id, 10);
+  const slug = post.slug || (Number.isInteger(wpId) ? `charedim-${wpId}` : "");
+
+  if (!slug) return null;
+
+  const featuredMedia = post?._embedded?.["wp:featuredmedia"]?.[0];
+
+  return {
+    wp_id: Number.isInteger(wpId) ? wpId : null,
+    slug,
+    title: stripHtml(post?.title?.rendered ?? ""),
+    html: post?.content?.rendered ?? "",
+    excerpt: stripHtml(post?.excerpt?.rendered ?? ""),
+    published_at: post?.date ?? null,
+    modified_at: post?.modified ?? null,
+    featured_image_url: featuredMedia?.source_url ?? null,
+  };
+};
 
 const fetchRelatedPosts = async (postId, termIds, taxonomy) => {
   if (!termIds.length) return [];
@@ -327,6 +357,83 @@ router.get("/posts/:slug", async (req, res, next) => {
     const resolvedPost = await attachRelatedPosts(result.rows[0]);
 
     return res.json(resolvedPost);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.post("/posts/import-charedim", async (req, res, next) => {
+  try {
+    const limit = Math.min(
+      Math.max(parseInt(req.body?.limit, 10) || 20, 1),
+      MAX_LIMIT
+    );
+
+    const response = await fetch(
+      `${CHAREDIM_POSTS_URL}?per_page=${limit}&_embed=1`
+    );
+
+    if (!response.ok) {
+      return res.status(502).json({ error: "source_unavailable" });
+    }
+
+    const sourcePosts = await response.json();
+    const normalizedPosts = sourcePosts
+      .map(normalizeCharedimPost)
+      .filter(Boolean);
+
+    if (!normalizedPosts.length) {
+      return res.json({ inserted: 0, skipped: 0 });
+    }
+
+    const wpIds = normalizedPosts
+      .map((post) => post.wp_id)
+      .filter((value) => Number.isInteger(value));
+
+    const existing = wpIds.length
+      ? await query(
+          "SELECT wp_id FROM posts WHERE wp_id = ANY($1::int[])",
+          [wpIds]
+        )
+      : { rows: [] };
+
+    const existingIds = new Set(
+      existing.rows
+        .map((row) => Number.parseInt(row.wp_id, 10))
+        .filter((value) => Number.isInteger(value))
+    );
+
+    const toInsert = normalizedPosts.filter(
+      (post) => post.wp_id && !existingIds.has(post.wp_id)
+    );
+
+    let inserted = 0;
+
+    for (const post of toInsert) {
+      await query(
+        `INSERT INTO posts
+          (wp_id, slug, title, html, excerpt, published_at, modified_at, featured_image_url)
+         VALUES
+          ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (wp_id) DO NOTHING`,
+        [
+          post.wp_id,
+          post.slug,
+          post.title,
+          post.html,
+          post.excerpt,
+          post.published_at,
+          post.modified_at,
+          post.featured_image_url,
+        ]
+      );
+      inserted += 1;
+    }
+
+    return res.json({
+      inserted,
+      skipped: normalizedPosts.length - inserted,
+    });
   } catch (err) {
     return next(err);
   }
