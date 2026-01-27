@@ -69,6 +69,7 @@ const normalizeTermIds = (items) =>
 const stripHtml = (value = "") =>
   value
     .toString()
+    .replace(/&quot;/g, "\"")
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .trim();
