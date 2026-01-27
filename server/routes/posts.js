@@ -66,13 +66,18 @@ const normalizeTermIds = (items) =>
     .map((item) => Number.parseInt(item?.id, 10))
     .filter((value) => Number.isInteger(value));
 
+const normalizeEntities = (value = "") =>
+  value.toString().replace(/&#8211;/g, "–").replace(/\[&hellip;\]/g, "…");
+
 const stripHtml = (value = "") =>
-  value
-    .toString()
-    .replace(/&quot;/g, "\"")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  normalizeEntities(
+    value
+      .toString()
+      .replace(/&quot;/g, "\"")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 
 const normalizeCharedimPost = (post) => {
   if (!post) return null;
@@ -94,18 +99,18 @@ const normalizeCharedimPost = (post) => {
     wp_id: Number.isInteger(wpId) ? wpId : null,
     slug,
     title: stripHtml(post?.title?.rendered ?? ""),
-    html: post?.content?.rendered ?? "",
+    html: normalizeEntities(post?.content?.rendered ?? ""),
     excerpt: stripHtml(post?.excerpt?.rendered ?? ""),
     published_at: post?.date ?? null,
     modified_at: post?.modified ?? null,
     featured_image_url: featuredMedia?.source_url ?? null,
     categories: categories.map((term) => ({
-      name: term?.name ?? "",
+      name: normalizeEntities(term?.name ?? ""),
       slug: term?.slug ?? "",
       taxonomy: "category",
     })),
     tags: tags.map((term) => ({
-      name: term?.name ?? "",
+      name: normalizeEntities(term?.name ?? ""),
       slug: term?.slug ?? "",
       taxonomy: "post_tag",
     })),
@@ -118,7 +123,7 @@ const ensureTerm = async (client, term) => {
   }
 
   const existing = await client.query(
-    `SELECT id
+    `SELECT id, name
      FROM terms
      WHERE taxonomy = $1 AND (slug = $2 OR name = $3)
      LIMIT 1`,
@@ -126,7 +131,17 @@ const ensureTerm = async (client, term) => {
   );
 
   if (existing.rows.length) {
-    return existing.rows[0].id;
+    const existingRow = existing.rows[0];
+    const normalizedName = normalizeEntities(term.name ?? "");
+    if (normalizedName && existingRow.name !== normalizedName) {
+      await client.query(
+        `UPDATE terms
+         SET name = $1
+         WHERE id = $2`,
+        [normalizedName, existingRow.id]
+      );
+    }
+    return existingRow.id;
   }
 
   const inserted = await client.query(
@@ -438,49 +453,77 @@ router.post("/posts/import-charedim", async (req, res, next) => {
 
     const existing = wpIds.length
       ? await client.query(
-          "SELECT wp_id FROM posts WHERE wp_id = ANY($1::int[])",
+          "SELECT id, wp_id FROM posts WHERE wp_id = ANY($1::int[])",
           [wpIds]
         )
       : { rows: [] };
 
-    const existingIds = new Set(
+    const existingByWpId = new Map(
       existing.rows
-        .map((row) => Number.parseInt(row.wp_id, 10))
-        .filter((value) => Number.isInteger(value))
-    );
-
-    const toInsert = normalizedPosts.filter(
-      (post) => post.wp_id && !existingIds.has(post.wp_id)
+        .map((row) => [Number.parseInt(row.wp_id, 10), row.id])
+        .filter(([wpId]) => Number.isInteger(wpId))
     );
 
     let inserted = 0;
+    let updated = 0;
 
     await client.query("BEGIN");
 
-    for (const post of toInsert) {
-      const insertedPost = await client.query(
-        `INSERT INTO posts
-          (wp_id, slug, title, html, excerpt, published_at, modified_at, featured_image_url)
-         VALUES
-          ($1, $2, $3, $4, $5, $6, $7, $8)
-         ON CONFLICT (wp_id) DO NOTHING
-         RETURNING id`,
-        [
-          post.wp_id,
-          post.slug,
-          post.title,
-          post.html,
-          post.excerpt,
-          post.published_at,
-          post.modified_at,
-          post.featured_image_url,
-        ]
-      );
+    for (const post of normalizedPosts) {
+      if (!post.wp_id) continue;
 
-      const postId = insertedPost.rows[0]?.id;
+      let postId = existingByWpId.get(post.wp_id);
+
       if (!postId) {
-        continue;
+        const insertedPost = await client.query(
+          `INSERT INTO posts
+            (wp_id, slug, title, html, excerpt, published_at, modified_at, featured_image_url)
+           VALUES
+            ($1, $2, $3, $4, $5, $6, $7, $8)
+           ON CONFLICT (wp_id) DO NOTHING
+           RETURNING id`,
+          [
+            post.wp_id,
+            post.slug,
+            post.title,
+            post.html,
+            post.excerpt,
+            post.published_at,
+            post.modified_at,
+            post.featured_image_url,
+          ]
+        );
+
+        postId = insertedPost.rows[0]?.id ?? null;
+        if (postId) {
+          inserted += 1;
+        }
+      } else {
+        await client.query(
+          `UPDATE posts
+           SET slug = $2,
+               title = $3,
+               html = $4,
+               excerpt = $5,
+               published_at = $6,
+               modified_at = $7,
+               featured_image_url = $8
+           WHERE id = $1`,
+          [
+            postId,
+            post.slug,
+            post.title,
+            post.html,
+            post.excerpt,
+            post.published_at,
+            post.modified_at,
+            post.featured_image_url,
+          ]
+        );
+        updated += 1;
       }
+
+      if (!postId) continue;
 
       const terms = [
         ...(Array.isArray(post.categories) ? post.categories : []),
@@ -501,14 +544,14 @@ router.post("/posts/import-charedim", async (req, res, next) => {
         );
       }
 
-      inserted += 1;
     }
 
     await client.query("COMMIT");
 
     return res.json({
       inserted,
-      skipped: normalizedPosts.length - inserted,
+      updated,
+      skipped: normalizedPosts.length - inserted - updated,
     });
   } catch (err) {
     await client.query("ROLLBACK");
