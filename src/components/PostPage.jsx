@@ -104,13 +104,13 @@ export default function PostPage({
   }, [slug]);
 
   const resolvedPost = fetchedPost || post || fallback || {};
-  const title = resolvedPost.title || fallback?.title || "";
+  const title = normalizeEntities(resolvedPost.title || fallback?.title || "");
   const image = resolvedPost.featured_image_url || fallback?.featured_image_url || "";
   const publishedAt = resolvedPost.published_at || fallback?.published_at;
   const categories = Array.isArray(resolvedPost.categories) ? resolvedPost.categories : [];
   const tags = Array.isArray(resolvedPost.tags) ? resolvedPost.tags : [];
 
-  const subtitle = resolvedPost.summary || "";
+  const subtitle = normalizeEntities(resolvedPost.summary || "");
   const htmlContent = resolvedPost.html || resolvedPost.HTML || "";
   const fixedHtml = useMemo(() => fixWpHtml(htmlContent), [htmlContent]);
   const paragraphs = buildParagraphs(resolvedPost.content, fallback?.body);
