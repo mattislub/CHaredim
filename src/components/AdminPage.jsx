@@ -89,6 +89,42 @@ export default function AdminPage() {
     }
   };
 
+  const handleImportBriefs = async () => {
+    try {
+      setImportState({
+        isLoading: true,
+        message: "מייבא מבזקים מהאתר charedim.co.il...",
+        tone: "info",
+      });
+
+      const response = await fetch("/api/briefs/import-charedim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ limit: 30 }),
+      });
+
+      if (!response.ok) {
+        throw new Error("import_failed");
+      }
+
+      const data = await response.json();
+      const inserted = Number(data?.inserted ?? 0);
+      const skipped = Number(data?.skipped ?? 0);
+
+      setImportState({
+        isLoading: false,
+        message: `ייבוא המבזקים הושלם: נוספו ${inserted} מבזקים, ${skipped} דולגו כדי למנוע כפילויות.`,
+        tone: "success",
+      });
+    } catch (error) {
+      setImportState({
+        isLoading: false,
+        message: "הייבוא נכשל. נסו שוב בעוד כמה דקות.",
+        tone: "error",
+      });
+    }
+  };
+
   return (
     <section className="admin-page">
       <div className="admin-page__layout">
@@ -126,6 +162,16 @@ export default function AdminPage() {
               {importState.isLoading
                 ? "מייבא פוסטים..."
                 : "ייבוא פוסטים מ-charedim.co.il"}
+            </button>
+            <button
+              className="admin-page__button"
+              type="button"
+              onClick={handleImportBriefs}
+              disabled={importState.isLoading}
+            >
+              {importState.isLoading
+                ? "מייבא מבזקים..."
+                : "ייבוא מבזקים מ-charedim.co.il"}
             </button>
           </div>
           {notice ? (

@@ -33,3 +33,5 @@ Example endpoints:
 - `GET /api/health`
 - `GET /api/posts`
 - `GET /api/posts/:slug`
+- `GET /api/briefs`
+- `POST /api/briefs/import-charedim`
