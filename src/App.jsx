@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AdminPage from "./components/AdminPage";
 import AdminPostEditPage from "./components/AdminPostEditPage";
 import AdminPostsPage from "./components/AdminPostsPage";
+import BriefsPage from "./components/BriefsPage";
 import CategoryPostsSection from "./components/CategoryPostsSection";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
@@ -26,6 +27,7 @@ import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
+  briefsItems as fallbackBriefsItems,
   newsCards as fallbackNewsCards,
   opinionColumns as fallbackOpinionColumns,
   tickerItems as fallbackTickerItems,
@@ -344,6 +346,10 @@ export default function App() {
         image: item.image || fallbackImage,
       }));
 
+  const resolvedBriefsItems = fallbackBriefsItems.map((item) => ({
+    ...item,
+  }));
+
   const resolvedOpinionColumns = useMemo(() => {
     const fallbackItems = fallbackOpinionColumns.map((item) => ({
       ...item,
@@ -439,6 +445,7 @@ export default function App() {
   const isGalleryView = currentHash === "#/galleries";
   const isCommunityView = currentHash === "#/communities";
   const isNewsView = currentHash === "#/news";
+  const isBriefsView = currentHash === "#/briefs";
   const adminEditMatch = useMemo(
     () => currentHash.match(/^#\/admin\/posts\/edit\/?(.*)$/),
     [currentHash]
@@ -539,6 +546,8 @@ export default function App() {
             error={postsError}
             recentPosts={resolvedRecentPosts}
           />
+        ) : isBriefsView ? (
+          <BriefsPage items={resolvedBriefsItems} />
         ) : isGalleryView ? (
           <GalleryPage
             posts={Array.isArray(posts?.items) ? posts.items : posts}
