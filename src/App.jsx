@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AdminPage from "./components/AdminPage";
 import AdminPostEditPage from "./components/AdminPostEditPage";
 import AdminPostsPage from "./components/AdminPostsPage";
+import BriefsPage from "./components/BriefsPage";
 import CategoryPostsSection from "./components/CategoryPostsSection";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
@@ -19,6 +20,7 @@ import Ticker from "./components/Ticker";
 import {
   fetchCommunityHighlights,
   fetchCommunityPosts,
+  fetchBriefs,
   fetchPosts,
   fetchPostsByCategory,
 } from "./api/posts";
@@ -26,6 +28,7 @@ import { formatDateWithHebrew } from "./utils/date";
 import {
   heroMain as fallbackHeroMain,
   heroSide as fallbackHeroSide,
+  briefsItems as fallbackBriefsItems,
   newsCards as fallbackNewsCards,
   opinionColumns as fallbackOpinionColumns,
   tickerItems as fallbackTickerItems,
@@ -73,6 +76,9 @@ export default function App() {
   const [communityPagePosts, setCommunityPagePosts] = useState([]);
   const [isCommunityLoading, setIsCommunityLoading] = useState(true);
   const [communityError, setCommunityError] = useState("");
+  const [briefs, setBriefs] = useState([]);
+  const [isBriefsLoading, setIsBriefsLoading] = useState(true);
+  const [briefsError, setBriefsError] = useState("");
   const [randomSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
   useEffect(() => {
@@ -103,6 +109,29 @@ export default function App() {
     };
 
     loadPosts();
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadBriefs = async () => {
+      try {
+        setIsBriefsLoading(true);
+        setBriefsError("");
+        const data = await fetchBriefs({ limit: 30, signal: controller.signal });
+        setBriefs(Array.isArray(data.items) ? data.items : []);
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          setBriefsError("failed");
+        }
+      } finally {
+        setIsBriefsLoading(false);
+      }
+    };
+
+    loadBriefs();
 
     return () => controller.abort();
   }, []);
@@ -344,6 +373,15 @@ export default function App() {
         image: item.image || fallbackImage,
       }));
 
+  const resolvedBriefsItems = (
+    briefsError ? fallbackBriefsItems : briefs
+  ).map((item) => ({
+    ...item,
+    time: item.time || formatPostTime(item.published_at),
+    source: item.source || "charedim.co.il",
+    sourceUrl: item.source_url,
+  }));
+
   const resolvedOpinionColumns = useMemo(() => {
     const fallbackItems = fallbackOpinionColumns.map((item) => ({
       ...item,
@@ -439,6 +477,7 @@ export default function App() {
   const isGalleryView = currentHash === "#/galleries";
   const isCommunityView = currentHash === "#/communities";
   const isNewsView = currentHash === "#/news";
+  const isBriefsView = currentHash === "#/briefs";
   const adminEditMatch = useMemo(
     () => currentHash.match(/^#\/admin\/posts\/edit\/?(.*)$/),
     [currentHash]
@@ -538,6 +577,12 @@ export default function App() {
             isLoading={isPostsLoading}
             error={postsError}
             recentPosts={resolvedRecentPosts}
+          />
+        ) : isBriefsView ? (
+          <BriefsPage
+            items={resolvedBriefsItems}
+            isLoading={isBriefsLoading}
+            error={briefsError}
           />
         ) : isGalleryView ? (
           <GalleryPage

@@ -6,7 +6,7 @@ const navItems = [
   { label: "חדשות", href: "#/news" },
   { label: "קהילות", href: "#/communities" },
   { label: "טורי דעה" },
-  { label: "מבזקים" },
+  { label: "מבזקים", href: "#/briefs" },
 ];
 
 export default function Header() {

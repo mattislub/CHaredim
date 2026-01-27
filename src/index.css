@@ -760,6 +760,116 @@ main {
   box-shadow: 0 12px 20px rgba(15, 23, 42, 0.2);
 }
 
+.briefs-page {
+  min-height: 60vh;
+  padding: 2.5rem 0 3rem;
+  width: min(1000px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+}
+
+.briefs-page__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.briefs-page__badge {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.briefs-page__subtitle {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.briefs-page__status {
+  color: #475569;
+}
+
+.briefs-page__status--error {
+  color: #b91c1c;
+}
+
+.briefs-page__list {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.briefs-page__item {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  display: grid;
+  gap: 1.25rem;
+}
+
+.briefs-page__meta {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.briefs-page__meta h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.briefs-page__meta p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.briefs-page__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.briefs-page__source a {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.briefs-page__source a:hover,
+.briefs-page__source a:focus-visible {
+  text-decoration: underline;
+}
+
+.briefs-page__more {
+  display: flex;
+  justify-content: center;
+}
+
+.briefs-page__more-button {
+  border: none;
+  cursor: pointer;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.briefs-page__more-button:hover,
+.briefs-page__more-button:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(15, 23, 42, 0.2);
+}
+
 .community-tabs {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

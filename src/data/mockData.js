@@ -27,6 +27,73 @@ export const tickerItems = [
   "🔔 סקר פנימי: רוב הציבור תומך בעמדה נגד גיוס",
 ];
 
+export const briefsItems = [
+  {
+    id: 1,
+    title: "מפלגת יהדות התורה דורשת דיון חירום על תקציבי הישיבות",
+    subtitle:
+      "חברי הכנסת קוראים להקדים את הדיון בכנסת בעקבות הקיצוץ המסתמן בתקציבי המוסדות, ומדגישים את החשיבות לחיזוק עולם התורה בתקופה רגישה זו.",
+    time: "לפני 8 דקות",
+    source: "charedim.co.il",
+  },
+  {
+    id: 2,
+    title: "הוראות ביטחון חדשות לקראת הילולת רבי שמעון במירון",
+    subtitle:
+      "משטרת ישראל פרסמה מתווה מעודכן להסדרת דרכי ההגעה והכניסה למתחם, כולל תגבור מערכי הסעה והנחיות לציבור המגיע מהקהילות החרדיות.",
+    time: "לפני 22 דקות",
+    source: "charedim.co.il",
+  },
+  {
+    id: 3,
+    title: "קריאה של רבני העיר ירושלים להתכנסות תפילה המונית",
+    subtitle:
+      "במסר מיוחד לקראת ימי הסליחות, הרבנים קוראים להתכנס בבתי הכנסת המרכזיים בעיר ולהתפלל לשלום הציבור ולחיזוק האחדות.",
+    time: "לפני 39 דקות",
+    source: "charedim.co.il",
+  },
+  {
+    id: 4,
+    title: "חברת התחבורה הציבורית מוסיפה קווים לבני ברק בשעות העומס",
+    subtitle:
+      "לאחר פניות רבות של תושבים וראשי הקהילות, הוחלט על הרחבת תדירות הקווים המרכזיים כדי להקל על הנסיעות לעבודה וללימודים.",
+    time: "לפני שעה",
+    source: "charedim.co.il",
+  },
+  {
+    id: 5,
+    title: "מיזם חלוקת מזון לנזקקים לקראת שבת בעיר בית שמש",
+    subtitle:
+      "ארגוני החסד בעיר מדווחים על עלייה במספר המשפחות הזקוקות לסיוע ומבקשים מתנדבים לתגבור מערך החלוקה והלוגיסטיקה.",
+    time: "לפני שעה וחצי",
+    source: "charedim.co.il",
+  },
+  {
+    id: 6,
+    title: "הרבנים הראשיים מפרסמים הנחיות לימוד חדשות לתקופת בין הזמנים",
+    subtitle:
+      "במסמך שהופץ לבתי המדרש הודגש הצורך בשמירה על מסגרת לימוד קבועה, לצד פעילויות חינוכיות למשפחות בקהילות המקומיות.",
+    time: "לפני שעתיים",
+    source: "charedim.co.il",
+  },
+  {
+    id: 7,
+    title: "אזהרה לציבור: גל הונאות טלפוניות פוגע בקשישים חרדים",
+    subtitle:
+      "מוקדי הסיוע מדווחים על ניסיון התחזות לנציגי מוסדות, וממליצים למשפחות לעדכן את בני הבית ולא למסור פרטי אשראי.",
+    time: "לפני 3 שעות",
+    source: "charedim.co.il",
+  },
+  {
+    id: 8,
+    title: "מועצת גדולי התורה תקיים כינוס מיוחד בנושא חיזוק החינוך",
+    subtitle:
+      "הכינוס יעסוק בדרכים לחיזוק מוסדות הלימוד ושימור ערכי המסורת, תוך שיתוף פעולה בין מנהלי הישיבות וההורים.",
+    time: "לפני 4 שעות",
+    source: "charedim.co.il",
+  },
+];
+
 export const newsCards = [
   {
     title: "עצרת תלמידי ישיבות: לא לגיוס, כן ללימוד תורה",
