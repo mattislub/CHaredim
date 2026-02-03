@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatDateWithHebrew } from "../utils/date";
+import { normalizeEntities } from "../utils/text";
 import RecentPostsSidebar from "./RecentPostsSidebar";
 
 const buildParagraphs = (content, fallback) => {
@@ -14,14 +15,6 @@ const buildParagraphs = (content, fallback) => {
 };
 
 const formatPostTime = (value) => formatDateWithHebrew(value);
-
-const normalizeEntities = (value) => {
-  if (typeof value !== "string") return value;
-  return value
-    .replace(/&#8211;/g, "–")
-    .replace(/\[&hellip;\]/g, "…")
-    .replace(/&quot;?/g, "\"");
-};
 
 const fixWpHtml = (html) => {
   if (!html) return "";

@@ -1,3 +1,5 @@
+import { normalizeEntities } from "../utils/text";
+
 export default function Hero({ mainPost, sidePosts }) {
   return (
     <section className="hero">
@@ -8,22 +10,22 @@ export default function Hero({ mainPost, sidePosts }) {
           className="hero__image"
         />
         <div className="hero__content">
-          <span className="tag">{mainPost.tag}</span>
+          <span className="tag">{normalizeEntities(mainPost.tag)}</span>
           <h1>
             <a className="headline-link" href={`#/post/${mainPost.slug}`}>
-              {mainPost.title}
+              {normalizeEntities(mainPost.title)}
             </a>
           </h1>
-          <p>{mainPost.summary}</p>
+          <p>{normalizeEntities(mainPost.summary)}</p>
         </div>
       </article>
       <div className="hero__side">
         {sidePosts.map((item) => (
           <div key={item.title} className="hero__side-item">
-            <span className="tag tag--subtle">{item.tag}</span>
+            <span className="tag tag--subtle">{normalizeEntities(item.tag)}</span>
             <h3>
               <a className="headline-link" href={`#/post/${item.slug}`}>
-                {item.title}
+                {normalizeEntities(item.title)}
               </a>
             </h3>
           </div>
