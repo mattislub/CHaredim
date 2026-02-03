@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { normalizeEntities } from "../utils/text";
 
 const INITIAL_VISIBLE_COUNT = 8;
 const LOAD_MORE_COUNT = 6;
@@ -22,10 +23,10 @@ export default function BriefsPage({
     <section className="briefs-page" dir="rtl">
       <header className="briefs-page__header">
         <div>
-          <p className="briefs-page__badge">{badge}</p>
-          <h1>{title}</h1>
+          <p className="briefs-page__badge">{normalizeEntities(badge)}</p>
+          <h1>{normalizeEntities(title)}</h1>
         </div>
-        <p className="briefs-page__subtitle">{subtitle}</p>
+        <p className="briefs-page__subtitle">{normalizeEntities(subtitle)}</p>
       </header>
       {isLoading ? (
         <p className="briefs-page__status">טוען מבזקים מהשרת...</p>
@@ -42,15 +43,17 @@ export default function BriefsPage({
               {visibleItems.map((item) => (
                 <article className="briefs-page__item" key={item.id ?? item.title}>
                   <div className="briefs-page__meta">
-                    <h2>{item.title}</h2>
-                    <p>{item.subtitle}</p>
+                    <h2>{normalizeEntities(item.title)}</h2>
+                    <p>{normalizeEntities(item.subtitle)}</p>
                   </div>
                   <div className="briefs-page__footer">
-                    <span className="briefs-page__time">{item.time}</span>
+                    <span className="briefs-page__time">
+                      {normalizeEntities(item.time)}
+                    </span>
                     <span className="briefs-page__source">
                       מקור:{" "}
                       <a href={item.sourceUrl || "https://charedim.co.il"}>
-                        {item.source}
+                        {normalizeEntities(item.source)}
                       </a>
                     </span>
                   </div>

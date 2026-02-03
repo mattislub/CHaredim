@@ -1,5 +1,6 @@
 import { useState } from "react";
 import RecentPostsSidebar from "./RecentPostsSidebar";
+import { normalizeEntities } from "../utils/text";
 
 const INITIAL_VISIBLE_COUNT = 10;
 const LOAD_MORE_COUNT = 10;
@@ -24,10 +25,10 @@ export default function NewsPage({
     <section className="news-page" dir="rtl">
       <header className="news-page__header">
         <div>
-          <p className="news-page__badge">{badge}</p>
-          <h1>{title}</h1>
+          <p className="news-page__badge">{normalizeEntities(badge)}</p>
+          <h1>{normalizeEntities(title)}</h1>
         </div>
-        <p className="news-page__subtitle">{subtitle}</p>
+        <p className="news-page__subtitle">{normalizeEntities(subtitle)}</p>
       </header>
       {isLoading ? (
         <p className="news-page__status">טוען פוסטים מהשרת...</p>
@@ -52,10 +53,12 @@ export default function NewsPage({
                       />
                       <div className="news-page__content">
                         <div className="news-page__meta">
-                          <h2>{item.title}</h2>
-                          <p>{item.subtitle}</p>
+                          <h2>{normalizeEntities(item.title)}</h2>
+                          <p>{normalizeEntities(item.subtitle)}</p>
                           {item.time ? (
-                            <span className="news-page__time">{item.time}</span>
+                            <span className="news-page__time">
+                              {normalizeEntities(item.time)}
+                            </span>
                           ) : null}
                         </div>
                         <a className="news-page__button" href={`#/post/${item.slug}`}>
