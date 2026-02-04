@@ -1098,10 +1098,20 @@ main {
   color: #1e293b;
   line-height: 1.8;
   font-size: 1.05rem;
+  text-align: justify;
+  text-justify: inter-word;
+  text-align-last: right;
 }
 
 .post-page__content p {
   margin: 0;
+}
+
+.post-page__content p,
+.post-page__content li {
+  text-align: justify;
+  text-justify: inter-word;
+  text-align-last: right;
 }
 
 .post-page__content img {
