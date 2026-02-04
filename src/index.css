@@ -598,6 +598,219 @@ main {
   }
 }
 
+.category-showcase-group {
+  gap: 1.25rem;
+}
+
+.category-showcase-group__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.category-showcase-group__grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.category-showcase {
+  border-radius: 24px;
+  padding: 1.5rem;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.category-showcase--gallery {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.category-showcase--video {
+  background: #fff7ed;
+}
+
+.category-showcase--list {
+  background: #f8fafc;
+}
+
+.category-showcase--row {
+  background: #e2e8f0;
+}
+
+.category-showcase--column {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  color: #f8fafc;
+}
+
+.category-showcase__items {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.category-showcase__items--gallery {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.category-showcase__items--video,
+.category-showcase__items--list,
+.category-showcase__items--column {
+  grid-template-columns: 1fr;
+}
+
+.category-showcase__items--row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.category-showcase__items--row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.category-showcase__items--row::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.25);
+  border-radius: 999px;
+}
+
+.category-showcase__item {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-showcase__item:hover,
+.category-showcase__item:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.15);
+}
+
+.category-showcase__item--gallery {
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.category-showcase__item--row {
+  min-width: 220px;
+  flex: 0 0 220px;
+}
+
+.category-showcase__item--list,
+.category-showcase__item--video {
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding-left: 1rem;
+}
+
+.category-showcase__item--column {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.category-showcase__media {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.category-showcase__item--list .category-showcase__media,
+.category-showcase__item--video .category-showcase__media {
+  width: 120px;
+  height: 90px;
+}
+
+.category-showcase__item--row .category-showcase__media,
+.category-showcase__item--column .category-showcase__media {
+  width: 100%;
+}
+
+.category-showcase__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.category-showcase__item--row .category-showcase__media img {
+  height: 140px;
+}
+
+.category-showcase__item--gallery .category-showcase__media img {
+  height: 120px;
+}
+
+.category-showcase__content {
+  padding: 0.85rem 1rem 1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.category-showcase__item--list .category-showcase__content,
+.category-showcase__item--video .category-showcase__content {
+  padding: 0.85rem 1rem 0.85rem 0;
+}
+
+.category-showcase__item--gallery .category-showcase__content {
+  position: absolute;
+  inset: auto 0 0 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0) 0%,
+    rgba(15, 23, 42, 0.9) 100%
+  );
+  color: #f8fafc;
+}
+
+.category-showcase__meta {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.category-showcase--column .category-showcase__meta,
+.category-showcase--gallery .category-showcase__meta {
+  color: rgba(226, 232, 240, 0.8);
+}
+
+.category-showcase__play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+}
+
+.category-showcase__badge {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .card--news:hover,
 .card--news:focus-visible {
   transform: translateY(-2px) scale(1.03);

@@ -3,7 +3,7 @@ import AdminPage from "./components/AdminPage";
 import AdminPostEditPage from "./components/AdminPostEditPage";
 import AdminPostsPage from "./components/AdminPostsPage";
 import BriefsPage from "./components/BriefsPage";
-import CategoryPostsSection from "./components/CategoryPostsSection";
+import CategoryShowcaseSection from "./components/CategoryShowcaseSection";
 import ExtraContent from "./components/ExtraContent";
 import Footer from "./components/Footer";
 import GalleryPreviewSection from "./components/GalleryPreviewSection";
@@ -253,6 +253,14 @@ export default function App() {
     const normalized = normalizeCategoryValue(value);
     return ["דעות", "טורי דעה", "טור דעה", "דעה"].includes(normalized);
   };
+  const isGalleryCategory = (value) => {
+    const normalized = normalizeCategoryValue(value);
+    return ["גלריה", "גלריות", "gallery"].includes(normalized);
+  };
+  const isVideoCategory = (value) => {
+    const normalized = normalizeCategoryValue(value);
+    return ["וידאו", "וידיאו", "video", "videos"].includes(normalized);
+  };
   const getPostCategoryValues = (post) => {
     const values = [];
     if (post?.category) {
@@ -443,6 +451,85 @@ export default function App() {
     () => mapCategoryCards(categoryPosts.history),
     [categoryPosts.history]
   );
+  const resolvedGalleryCards = useMemo(() => {
+    if (!posts.length) return [];
+    const galleryPosts = posts.filter((post) =>
+      getPostCategoryValues(post).some(isGalleryCategory)
+    );
+    return mapCategoryCards(galleryPosts);
+  }, [posts]);
+  const resolvedVideoCards = useMemo(() => {
+    if (!posts.length) return [];
+    const videoPosts = posts.filter((post) =>
+      getPostCategoryValues(post).some(isVideoCategory)
+    );
+    return mapCategoryCards(videoPosts);
+  }, [posts]);
+  const resolvedSocietyCards = useMemo(() => {
+    if (!posts.length) return [];
+    const societyPosts = posts.filter((post) =>
+      getPostCategoryValues(post).some((value) =>
+        ["חברה", "ציבור", "חיים קהילתיים"].includes(normalizeCategoryValue(value))
+      )
+    );
+    return mapCategoryCards(societyPosts);
+  }, [posts]);
+  const getShowcaseItems = (items, limit, fallbackOffset = 0) => {
+    if (items.length) return items.slice(0, limit);
+    return resolvedNewsCards.slice(fallbackOffset, fallbackOffset + limit);
+  };
+  const categoryShowcases = [
+    {
+      key: "gallery",
+      title: "גלריות",
+      hint: "רגעים מצולמים מהשטח",
+      layout: "gallery",
+      items: getShowcaseItems(resolvedGalleryCards, 6, 0),
+      isLoading: isPostsLoading,
+      error: postsError,
+      moreLink: { href: "#/galleries", label: "לכל הגלריות" },
+    },
+    {
+      key: "video",
+      title: "וידאו",
+      hint: "דיווחים מצולמים ועדכונים",
+      layout: "video",
+      items: getShowcaseItems(resolvedVideoCards, 5, 6),
+      isLoading: isPostsLoading,
+      error: postsError,
+      moreLink: { href: "#/category/וידאו", label: "עוד וידאו" },
+    },
+    {
+      key: "communities",
+      title: "קהילות",
+      hint: "עדכונים חמים מהקהילה",
+      layout: "list",
+      items: getShowcaseItems(resolvedCommunityCards, 5, 11),
+      isLoading: isCategoryLoading,
+      error: categoryError,
+      moreLink: { href: "#/category/קהילות", label: "עוד בקהילה" },
+    },
+    {
+      key: "society",
+      title: "חברה",
+      hint: "סיפורים מהחברה החרדית",
+      layout: "row",
+      items: getShowcaseItems(resolvedSocietyCards, 4, 16),
+      isLoading: isPostsLoading,
+      error: postsError,
+      moreLink: { href: "#/category/חברה", label: "עוד סיפורים" },
+    },
+    {
+      key: "history",
+      title: "היסטוריה",
+      hint: "מהארכיון הקהילתי",
+      layout: "column",
+      items: getShowcaseItems(resolvedHistoryCards, 5, 20),
+      isLoading: isCategoryLoading,
+      error: categoryError,
+      moreLink: { href: "#/category/היסטוריה", label: "עוד בארכיון" },
+    },
+  ];
 
   const postHashMatch = useMemo(
     () => currentHash.match(/^#\/post\/?(.*)$/),
@@ -620,26 +707,22 @@ export default function App() {
               error={postsError}
               getPostSlug={getPostSlug}
             />
-            <CategoryPostsSection
-              title="קהילות"
-              hint="חיבור לקהילה המקומית"
-              items={resolvedCommunityCards}
-              isLoading={isCategoryLoading}
-              error={categoryError}
-              variant="communities"
-              emptyMessage="עדיין אין פוסטים מקטגוריית קהילות."
-              moreLink={{ href: "#/category/קהילות", label: "עוד" }}
-            />
-            <CategoryPostsSection
-              title="היסטוריה"
-              hint="מהארכיון הקהילתי"
-              items={resolvedHistoryCards}
-              isLoading={isCategoryLoading}
-              error={categoryError}
-              variant="history"
-              emptyMessage="עדיין אין פוסטים מקטגוריית היסטוריה."
-              moreLink={{ href: "#/category/היסטוריה", label: "עוד" }}
-            />
+            <section className="section category-showcase-group">
+              <div className="section__header section__header--split">
+                <div className="section__title-group">
+                  <h2>קטגוריות חמות</h2>
+                  <span className="section__hint">
+                    תצוגה שונה לכל תחום כדי להקל על ניווט במאות הפוסטים.
+                  </span>
+                </div>
+                <span className="category-showcase-group__badge">חדש</span>
+              </div>
+              <div className="category-showcase-group__grid">
+                {categoryShowcases.map((section) => (
+                  <CategoryShowcaseSection key={section.key} {...section} />
+                ))}
+              </div>
+            </section>
             <OpinionColumns
               items={resolvedOpinionColumns}
               isLoading={isPostsLoading}
