@@ -96,6 +96,11 @@ export default function PostPage({
     return () => controller.abort();
   }, [slug]);
 
+  useEffect(() => {
+    if (!slug) return;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [slug]);
+
   const resolvedPost = fetchedPost || post || fallback || {};
   const title = normalizeEntities(resolvedPost.title || fallback?.title || "");
   const image = resolvedPost.featured_image_url || fallback?.featured_image_url || "";
