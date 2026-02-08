@@ -11,7 +11,7 @@ export default function Hero({ mainPost, sidePosts }) {
         />
         <div className="hero__content">
           <span className="tag">{normalizeEntities(mainPost.tag)}</span>
-          <h1 className="headline-font hero__title">
+          <h1>
             <a className="headline-link" href={`#/post/${mainPost.slug}`}>
               {normalizeEntities(mainPost.title)}
             </a>
@@ -23,7 +23,7 @@ export default function Hero({ mainPost, sidePosts }) {
         {sidePosts.map((item) => (
           <div key={item.title} className="hero__side-item">
             <span className="tag tag--subtle">{normalizeEntities(item.tag)}</span>
-            <h3 className="headline-font hero__side-title">
+            <h3>
               <a className="headline-link" href={`#/post/${item.slug}`}>
                 {normalizeEntities(item.title)}
               </a>
