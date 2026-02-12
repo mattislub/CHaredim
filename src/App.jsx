@@ -471,16 +471,6 @@ export default function App() {
   };
   const categoryShowcases = [
     {
-      key: "gallery",
-      title: "גלריות",
-      hint: "רגעים מצולמים מהשטח",
-      layout: "gallery",
-      items: getShowcaseItems(resolvedGalleryCards, 6, 0),
-      isLoading: isPostsLoading,
-      error: postsError,
-      moreLink: { href: "#/galleries", label: "לכל הגלריות" },
-    },
-    {
       key: "video",
       title: "וידאו",
       hint: "דיווחים מצולמים ועדכונים",
