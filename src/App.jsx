@@ -692,15 +692,18 @@ export default function App() {
             emptyMessage="עדיין אין פוסטים בקטגוריית קהילות."
           />
         ) : (
-          <>
+          <div className="home-page">
             <Hero mainPost={resolvedHeroMain} sidePosts={resolvedHeroSide} />
             <Ticker items={resolvedTickerItems} />
-            <NewsGrid
-              items={resolvedNewsCards}
-              isLoading={isPostsLoading}
-              error={postsError}
-              moreLink={{ href: "#/news", label: "חדשות נוספות" }}
-            />
+            <div className="home-page__top-grid">
+              <NewsGrid
+                items={resolvedNewsCards}
+                isLoading={isPostsLoading}
+                error={postsError}
+                moreLink={{ href: "#/news", label: "חדשות נוספות" }}
+              />
+              <PopularList items={resolvedPopularPosts} />
+            </div>
             <GalleryPreviewSection
               posts={posts}
               isLoading={isPostsLoading}
@@ -723,15 +726,16 @@ export default function App() {
                 ))}
               </div>
             </section>
-            <OpinionColumns
-              items={resolvedOpinionColumns}
-              isLoading={isPostsLoading}
-              error={postsError}
-            />
-            <PopularList items={resolvedPopularPosts} />
-            <ExtraContent />
+            <div className="home-page__bottom-grid">
+              <OpinionColumns
+                items={resolvedOpinionColumns}
+                isLoading={isPostsLoading}
+                error={postsError}
+              />
+              <ExtraContent />
+            </div>
             <SponsoredArea />
-          </>
+          </div>
         )}
       </main>
       <Footer />
