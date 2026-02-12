@@ -209,6 +209,7 @@ router.get("/posts", async (req, res, next) => {
     );
     const q = req.query.q?.trim();
     const status = req.query.status?.trim();
+    const sort = req.query.sort?.trim();
 
     const conditions = [];
     const values = [];
@@ -236,11 +237,16 @@ router.get("/posts", async (req, res, next) => {
     const totalPages = Math.max(Math.ceil(total / limit), 1);
     const offset = (page - 1) * limit;
 
+    const orderByClause =
+      sort === "random"
+        ? "ORDER BY RANDOM()"
+        : "ORDER BY p.published_at DESC NULLS LAST, p.id DESC";
+
     const itemsResult = await query(
       `${POST_WITH_TERMS_SELECT}
        ${whereClause}
        GROUP BY p.id
-       ORDER BY p.published_at DESC NULLS LAST, p.id DESC
+       ${orderByClause}
        LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
       [...values, limit, offset]
     );
