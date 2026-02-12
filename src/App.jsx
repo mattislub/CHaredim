@@ -465,15 +465,6 @@ export default function App() {
     );
     return mapCategoryCards(videoPosts);
   }, [posts]);
-  const resolvedSocietyCards = useMemo(() => {
-    if (!posts.length) return [];
-    const societyPosts = posts.filter((post) =>
-      getPostCategoryValues(post).some((value) =>
-        ["חברה", "ציבור", "חיים קהילתיים"].includes(normalizeCategoryValue(value))
-      )
-    );
-    return mapCategoryCards(societyPosts);
-  }, [posts]);
   const getShowcaseItems = (items, limit, fallbackOffset = 0) => {
     if (items.length) return items.slice(0, limit);
     return resolvedNewsCards.slice(fallbackOffset, fallbackOffset + limit);
@@ -508,16 +499,6 @@ export default function App() {
       isLoading: isCategoryLoading,
       error: categoryError,
       moreLink: { href: "#/category/קהילות", label: "עוד בקהילה" },
-    },
-    {
-      key: "society",
-      title: "חברה",
-      hint: "סיפורים מהחברה החרדית",
-      layout: "row",
-      items: getShowcaseItems(resolvedSocietyCards, 4, 16),
-      isLoading: isPostsLoading,
-      error: postsError,
-      moreLink: { href: "#/category/חברה", label: "עוד סיפורים" },
     },
     {
       key: "history",
