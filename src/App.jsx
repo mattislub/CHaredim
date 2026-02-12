@@ -37,27 +37,6 @@ import {
 const ADMIN_USERNAME = "מתתיהו";
 const ADMIN_PASSWORD = "613613";
 
-const createSeededRandom = (seed) => {
-  let value = seed;
-  return () => {
-    value += 0x6d2b79f5;
-    let t = value;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-};
-
-const shuffleArray = (items, seed) => {
-  const random = createSeededRandom(seed);
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-};
-
 export default function App() {
   const [currentHash, setCurrentHash] = useState(window.location.hash || "#/");
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(
@@ -79,7 +58,6 @@ export default function App() {
   const [briefs, setBriefs] = useState([]);
   const [isBriefsLoading, setIsBriefsLoading] = useState(true);
   const [briefsError, setBriefsError] = useState("");
-  const [randomSeed] = useState(() => Math.floor(Math.random() * 1_000_000));
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -97,7 +75,11 @@ export default function App() {
       try {
         setIsPostsLoading(true);
         setPostsError("");
-        const data = await fetchPosts({ limit: 100, signal: controller.signal });
+        const data = await fetchPosts({
+          limit: 100,
+          sort: "latest",
+          signal: controller.signal,
+        });
         setPosts(Array.isArray(data.items) ? data.items : []);
       } catch (error) {
         if (error?.name !== "AbortError") {
@@ -221,14 +203,6 @@ export default function App() {
   };
 
   const fallbackImage = fallbackHeroMain.image;
-  const shuffledPosts = useMemo(
-    () => shuffleArray(posts, randomSeed),
-    [posts, randomSeed]
-  );
-  const shuffledFallbackNewsCards = useMemo(
-    () => shuffleArray(fallbackNewsCards, randomSeed),
-    [randomSeed]
-  );
 
   const slugify = (value) =>
     value
@@ -306,7 +280,7 @@ export default function App() {
       };
 
   const resolvedHeroSide = posts.length
-    ? shuffledPosts.slice(1, 4).map((post) => ({
+    ? posts.slice(1, 4).map((post) => ({
         title: post.title,
         tag: "עדכון",
         slug: getPostSlug(post),
@@ -317,7 +291,7 @@ export default function App() {
       }));
 
   const resolvedTickerItems = posts.length
-    ? shuffledPosts.slice(0, 6).map((post) => ({
+    ? posts.slice(0, 6).map((post) => ({
         label: `⚡ ${post.title}`,
         slug: getPostSlug(post),
       }))
@@ -327,14 +301,14 @@ export default function App() {
       }));
 
   const resolvedNewsCards = posts.length
-    ? shuffledPosts.map((post) => ({
+    ? posts.map((post) => ({
         id: post.id,
         slug: getPostSlug(post),
         title: post.title,
         time: formatPostTime(post.published_at),
         image: post.featured_image_url || fallbackImage,
       }))
-    : shuffledFallbackNewsCards.map((item) => ({
+    : fallbackNewsCards.map((item) => ({
         ...item,
         slug: slugify(item.title),
       }));
@@ -350,7 +324,7 @@ export default function App() {
           time: formatPostTime(post.published_at),
           image: post.featured_image_url || fallbackImage,
         }))
-    : shuffledFallbackNewsCards.map((item) => ({
+    : fallbackNewsCards.map((item) => ({
         ...item,
         slug: slugify(item.title),
         subtitle: "אין תקציר זמין לפוסט זה.",
@@ -370,12 +344,12 @@ export default function App() {
   }, [communityPagePosts, fallbackImage, getPostSlug]);
 
   const resolvedPopularPosts = posts.length
-    ? shuffledPosts.slice(0, 5).map((post) => ({
+    ? posts.slice(0, 5).map((post) => ({
         title: post.title,
         slug: getPostSlug(post),
         image: post.featured_image_url || fallbackImage,
       }))
-    : shuffledFallbackNewsCards.slice(0, 5).map((item) => ({
+    : fallbackNewsCards.slice(0, 5).map((item) => ({
         title: item.title,
         slug: slugify(item.title),
         image: item.image || fallbackImage,
@@ -432,6 +406,31 @@ export default function App() {
         publishedAt: post.published_at,
         image: post.featured_image_url || fallbackImage,
       }));
+  }, [posts]);
+
+
+  const resolvedEditorialPicks = useMemo(() => {
+    if (!posts.length) return [];
+
+    return posts.slice(6, 10).map((post) => ({
+      id: post.id,
+      slug: getPostSlug(post),
+      title: post.title,
+      time: formatPostTime(post.published_at),
+      image: post.featured_image_url || fallbackImage,
+    }));
+  }, [posts]);
+
+  const resolvedLatestUpdates = useMemo(() => {
+    if (!posts.length) return [];
+
+    return posts.slice(10, 16).map((post) => ({
+      id: post.id,
+      slug: getPostSlug(post),
+      title: post.title,
+      time: formatPostTime(post.published_at),
+      image: post.featured_image_url || fallbackImage,
+    }));
   }, [posts]);
 
   const mapCategoryCards = (items) =>
@@ -671,9 +670,29 @@ export default function App() {
                 items={resolvedNewsCards}
                 isLoading={isPostsLoading}
                 error={postsError}
+                title="חדשות אחרונות"
+                hint="מסודר לפי הפרסום האחרון"
                 moreLink={{ href: "#/news", label: "חדשות נוספות" }}
               />
               <PopularList items={resolvedPopularPosts} />
+            </div>
+            <div className="home-page__top-grid">
+              <NewsGrid
+                items={resolvedEditorialPicks}
+                isLoading={isPostsLoading}
+                error={postsError}
+                title="בחירת העורך"
+                hint="תכנים שבחרנו עבורך"
+                emptyMessage="אין עדיין תכנים לבחירת העורך."
+              />
+              <NewsGrid
+                items={resolvedLatestUpdates}
+                isLoading={isPostsLoading}
+                error={postsError}
+                title="עדכונים שוטפים"
+                hint="עוד כותרות חדשות מהמערכת"
+                emptyMessage="אין כרגע עדכונים נוספים."
+              />
             </div>
             <GalleryPreviewSection
               posts={posts}

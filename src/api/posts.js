@@ -3,10 +3,16 @@ const DEFAULT_API_BASE_URL = "https://123.70-60.com/api";
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL;
 
-export async function fetchPosts({ page = 1, limit = 20, signal } = {}) {
+export async function fetchPosts({
+  page = 1,
+  limit = 20,
+  sort = "latest",
+  signal,
+} = {}) {
   const url = new URL(`${API_BASE_URL}/posts`);
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
+  url.searchParams.set("sort", sort);
 
   const response = await fetch(url.toString(), { signal });
 
